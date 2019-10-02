@@ -1,0 +1,17 @@
+{"Data": {
+    "input_directory": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2/cv2_split2",
+    "output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/results_binary_global.csv",
+    "cv": 2
+	},
+"NeuralNetStructure": { 
+    "input_dim": 126,
+    "hidden_units": [12, 8, 8],
+    "activation": "relu",
+    "loss": "binary_crossentropy"
+ 	},
+"ModelFitParams": {
+	"batch_size": 40,
+	"n_epochs": 8,
+	"verbose": 1
+	}
+}
