@@ -1,5 +1,5 @@
 {"Data": {
-    "input_directory": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2/cv2_split2",
+    "input_directory": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2/cv2_AllSplits",
     "output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/results_binary_global.csv",
     "cv": 2
 	},
