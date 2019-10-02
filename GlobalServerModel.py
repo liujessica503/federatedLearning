@@ -37,12 +37,12 @@ class GlobalModel:
 		self.X_train = scaler.transform(self.X_train)
 		self.X_test = scaler.transform(self.X_test)
 
-	def train(self, n_epochs, batch_size, hidden_units, input_dim, activation, verbose):
+	def train(self, n_epochs, batch_size, hidden_units_args, input_dim, activation, verbose):
 		# linear stack of layers
 		model = Sequential()
-		model.add(Dense(hidden_units=hidden_units[0], input_dim=input_dim, activation=activation))
-		model.add(Dense(hidden_units=hidden_units[1], activation=activation))
-		model.add(Dense(hidden_units=hidden_units[2], activation=activation))
+		model.add(Dense(hidden_units=hidden_units_args[0], input_dim=input_dim, activation=activation))
+		model.add(Dense(hidden_units=hidden_units_args[1], activation=activation))
+		model.add(Dense(hidden_units=hidden_units_args[2], activation=activation))
 		
 		# Add an output layer 
 		# sigmoid activation function so that your output is a probability
