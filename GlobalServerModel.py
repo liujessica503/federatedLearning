@@ -56,28 +56,28 @@ class GlobalModel:
 
 
 	def test(self):
-			test_covariates = self.X_test
-			test_labels = self.Y_test
-			Y_pred = model.predict(self.X_test).ravel()
-			# in order to calculate AUC, we need both classes 1 and 0 represented in the data
-			if 1 in Y_test and 0 in Y_test:
-				# false and true positive rates and thresholds
-				fpr, tpr, thresholds = roc_curve(Y_test, Y_pred)
-				auc_value = auc(fpr, tpr)
-				print('AUC: ' + str(auc))
-			else:
-				fpr, tpr, thresholds, auc_value = ["","","",""] #initialize since we're printing to the csv
+		test_covariates = self.X_test
+		test_labels = self.Y_test
+		Y_pred = model.predict(self.X_test).ravel()
+		# in order to calculate AUC, we need both classes 1 and 0 represented in the data
+		if 1 in Y_test and 0 in Y_test:
+			# false and true positive rates and thresholds
+			fpr, tpr, thresholds = roc_curve(Y_test, Y_pred)
+			auc_value = auc(fpr, tpr)
+			print('AUC: ' + str(auc))
+		else:
+			fpr, tpr, thresholds, auc_value = ["","","",""] #initialize since we're printing to the csv
 
-			# since the class labels are binary, choose a probability cutoff to make the predictions binary
-			Y_pred = Y_pred > 0.50
-			# evaluate performance
-			score = model.evaluate(X_test, Y_test,verbose=1)
-			precision = precision_score(Y_test, Y_pred)
-			recall = recall_score(Y_test, Y_pred)
-			# F1 score - weighted average of precision and recall
-			f1 = f1_score(Y_test,Y_pred)
-			# Cohen's kappa - classification accuracy normalized by the imbalance of the classes in the data
-			cohen = cohen_kappa_score(Y_test, Y_pred)
+		# since the class labels are binary, choose a probability cutoff to make the predictions binary
+		Y_pred = Y_pred > 0.50
+		# evaluate performance
+		score = model.evaluate(X_test, Y_test,verbose=1)
+		precision = precision_score(Y_test, Y_pred)
+		recall = recall_score(Y_test, Y_pred)
+		# F1 score - weighted average of precision and recall
+		f1 = f1_score(Y_test,Y_pred)
+		# Cohen's kappa - classification accuracy normalized by the imbalance of the classes in the data
+		cohen = cohen_kappa_score(Y_test, Y_pred)
 
 
 	def write_metrics_to_csv(self, output_path, fpr=None, tpr=None, auc_value=None, score=None, precision=None, recall=None, f1=None, cohen=None):
