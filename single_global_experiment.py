@@ -29,5 +29,5 @@ train_data, test_data = split_train_test(directory = parameter_dict['Data']['inp
 
 
 global_model = GlobalModel(parameter_dict = parameter_dict, train_data = train_data, test_data = test_data)
-global_model.train(n_epochs = parameter_dict['ModelFitParams']['n_epochs'], batch_size = parameter_dict['ModelFitParams']['batch_size'], verbose = parameter_dict['ModelFitParams']['verbose'], hidden_units = parameter_dict['NeuralNetStructure']['hidden_units'], input_dim = parameter_dict['NeuralNetStructure']['input_dim'], activation = parameter_dict['NeuralNetStructure']['activation'])
+global_model.train(n_epochs = parameter_dict['ModelFitParams']['n_epochs'], batch_size = parameter_dict['ModelFitParams']['batch_size'], verbose = parameter_dict['ModelFitParams']['verbose'], hidden_units_args = parameter_dict['NeuralNetStructure']['hidden_units'], input_dim = parameter_dict['NeuralNetStructure']['input_dim'], activation = parameter_dict['NeuralNetStructure']['activation'])
 global_model.test(test_covariates = self.X_test, test_labels = self.Y_test)
