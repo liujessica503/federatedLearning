@@ -14,15 +14,18 @@ def split_train_test(directory, cv):
 
 	# get all csv's in the input directory
 	files_in_folder = glob.glob(os.path.join(directory, "*.csv"))
-	train_data = pd.concat((pd.read_csv(f).iloc[0:71*cv,:] for f in files_in_folder))
-	test_data = pd.concat((pd.read_csv(f).iloc[71*cv:,:] for f in files_in_folder))
 
-	# this is inefficient because we are reading test data above and below
-	# I know list comprehension above is faster and preferable, I just can't think of a way to make the below happen at the same time as the above
-	user_test_dict = {}
+	train_data_dict = dict()
+	test_data_dict = dict()
+	user_test_dict = dict()
+
 	for f in files_in_folder:
 		userID = f[-15:-9]
-		read_test_data = pd.read_csv(f).iloc[71*cv:,:]
-		user_test_dict[userID] = read_test_data.shape[0]
+		train_data_dict[f] = pd.read_csv(f).iloc[0:71*cv,:]
+		test_data_dict[f] = pd.read_csv(f).iloc[71*cv:,:]
+		user_test_dict[userID] = test_data_dict[f].shape[0]
+
+	train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
+	test_data  = pd.concat(test_data_dict[f] for f in files_in_folder)
 
 	return train_data, test_data
