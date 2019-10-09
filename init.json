@@ -6,7 +6,8 @@
     "layers": [12, 8, 8],
     "activation": "relu",
     "loss": "binary_crossentropy",
+    "learn_rate": 0.001,
 	"batch_size": 40,
-	"n_epochs": 8,
+	"epochs": 8,
 	"verbose": 1
 }
