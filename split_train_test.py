@@ -8,6 +8,8 @@ import numpy as np
 import glob
 import os
 from collections import OrderedDict
+# import user-defined function
+from get_binary_mood import get_binary_mood
 
 def split_train_test(directory, cv):
 	train_data_dict = {}
@@ -31,4 +33,14 @@ def split_train_test(directory, cv):
 	train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
 	test_data  = pd.concat(test_data_dict[f] for f in files_in_folder)
 
-	return train_data, test_data
+	# convert mood variable and mood lags from ordinal measure to binary measure
+	train_data = get_binary_mood(train_data)
+	test_data = get_binary_mood(test_data)
+
+	train_covariates = train_data.drop('mood', axis=1)
+	train_labels = np.ravel(train_data.mood)
+	test_covariates = test_data.drop('mood', axis=1)
+	test_labels = np.ravel(test_data.mood)
+
+
+	return train_covariates, train_labels, test_covariates, test_labels
