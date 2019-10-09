@@ -5,7 +5,7 @@ Maintenance:
 
 import matplotlib.pyplot as plt 
 
-def plot_auc(auc_value):
+def plot_auc(fpr, tpr, auc_value, filename):
 	plt.figure(1)
 	plt.plot([0, 1], [0, 1], 'k--')
 	plt.plot(fpr, tpr, label='Keras (area = {:.3f})'.format(auc_value))
@@ -13,4 +13,5 @@ def plot_auc(auc_value):
 	plt.ylabel('True positive rate')
 	plt.title('ROC curve')
 	plt.legend(loc='best')
-	plt.show()
+	plt.savefig(filename)
+	

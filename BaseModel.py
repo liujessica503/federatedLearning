@@ -14,6 +14,8 @@ class BaseModel(ABC):
 		self.batch_size = parameter_config["batch_size"]
 		self.verbose = parameter_config["verbose"]
 		self.output_path = parameter_config["output_path"]
+		self.auc_output_path = parameter_config["auc_output_path"]
+		self.plot_auc = parameter_config["plot_auc"]
 
 	@abstractmethod
 	def train(self, X: Any, y: Any) -> None:

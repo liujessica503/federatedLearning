@@ -8,6 +8,8 @@
 	"loss": "binary_crossentropy",
 	"learn_rate": 0.001,
 	"batch_size": 40,
-	"epochs": 8,
-	"verbose": 1
+	"epochs": 2,
+	"verbose": 1,
+	"plot_auc": 1,
+	"auc_output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/test_plot_auc.png"
 }
