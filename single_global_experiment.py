@@ -28,7 +28,7 @@ start = datetime.datetime.now()
 with open(sys.argv[1]) as file:
 		parameter_dict = json.load(file)
 
-train_covariates, train_labels, test_covariates, test_labels = split_train_test_global(
+train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
 	directory = parameter_dict['input_directory'], 
 	cv = parameter_dict['cv'])
 
