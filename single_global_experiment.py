@@ -16,6 +16,7 @@ Need to check if we have enough test / valid data before splitting.
 # later add graphics from analyzing results
 
 import json
+import sys
 
 # import user-defined functions
 from split_train_test_global import split_train_test_global
@@ -24,7 +25,7 @@ from GlobalModel import GlobalModel
 import datetime
 start = datetime.datetime.now()
 
-with open('init.json') as file:
+with open(sys.argv[1]) as file:
 		parameter_dict = json.load(file)
 
 train_covariates, train_labels, test_covariates, test_labels = split_train_test_global(
