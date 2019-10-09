@@ -1,9 +1,9 @@
 from BaseModel import BaseModel
-from typing import Dict
+from typing import Dict, List, Any
 
-class GlobalServerModel(BaseModel):
+class GlobalModel(BaseModel):
 
-	def __init__(self, parameter_config: Dict[Any]):
+	def __init__(self, parameter_config: dict()):
 		super.__init__(parameter_config)
 
 		self.model = Sequential()
@@ -34,7 +34,7 @@ class GlobalServerModel(BaseModel):
 	def train(self, X_dict: Any, y_dict: Any)->None:
 		# To make X, concat each dataFrame in X_dict
 
-		model.fit(X, Y ,epochs=self.epochs, batch_size=self.batch_size, verbose=verbose)
+		model.fit(X, Y ,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose)
 
 	def predict(self, X_dict: Any)->List[int]:
 		# To make X, concat all dataFrames in X_dict
