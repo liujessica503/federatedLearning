@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import glob
 import os
+from collections import OrderedDict
 
 def split_train_test(directory, cv):
 	train_data_dict = {}
@@ -17,7 +18,9 @@ def split_train_test(directory, cv):
 
 	train_data_dict = dict()
 	test_data_dict = dict()
-	user_test_dict = dict()
+	# keep track of the order in which users' data is added, 
+	# and how many rows of test data each user adds
+	user_test_dict = OrderedDict()
 
 	for f in files_in_folder:
 		userID = f[-15:-9]
