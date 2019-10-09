@@ -13,6 +13,7 @@ class BaseModel(ABC):
 		self.epochs = parameter_config["epochs"]
 		self.batch_size = parameter_config["batch_size"]
 		self.verbose = parameter_config["verbose"]
+		self.output_path = parameter_config["output_path"]
 
 	@abstractmethod
 	def train(self, X: Any, y: Any) -> None:

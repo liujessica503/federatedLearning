@@ -18,7 +18,7 @@ Need to check if we have enough test / valid data before splitting.
 import json
 
 # import user-defined functions
-from split_train_test import split_train_test
+from split_train_test_global import split_train_test_global
 from get_binary_mood import get_binary_mood
 from GlobalModel import GlobalModel
 
@@ -28,7 +28,7 @@ start = datetime.datetime.now()
 with open('init.json') as file:
 		parameter_dict = json.load(file)
 
-train_covariates, train_labels, test_covariates, test_labels = split_train_test(
+train_covariates, train_labels, test_covariates, test_labels = split_train_test_global(
 	directory = parameter_dict['input_directory'], 
 	cv = parameter_dict['cv'])
 

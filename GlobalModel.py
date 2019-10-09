@@ -40,5 +40,11 @@ class GlobalModel(BaseModel):
 		# To make X, concat all dataFrames in X_dict
 		return self.model.predict(X_dict).ravel()
 
+	def evaluate(self) -> None:
+		pass
+
+	def write(self) -> None:
+		pass
+
 	def reset(self)->None:
 		pass
