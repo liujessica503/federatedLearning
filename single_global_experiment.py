@@ -21,6 +21,7 @@ import sys
 # import user-defined functions
 from split_train_test_global import split_train_test_global
 from GlobalModel import GlobalModel
+from UserDayData import UserDayData
 
 import datetime
 start = datetime.datetime.now()
@@ -32,9 +33,12 @@ train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labe
 	directory = parameter_dict['input_directory'], 
 	cv = parameter_dict['cv'])
 
+train_data = UserDayData(train_covariates, train_labels, train_user_day_pairs)
+test_data = UserDayData(test_covariates, test_labels, test_user_day_pairs)
+
 global_model = GlobalModel(parameter_config = parameter_dict)
-global_model.train(X_dict = train_covariates, Y_dict = train_labels)
-predictions = global_model.predict(X_dict = test_covariates)
-global_model.evaluate(test_covariates = test_covariates, test_labels = test_labels, predictions = predictions, outputFile = parameter_dict['output_path'], plotAUC = True)
+global_model.train(train_data)
+predictions = global_model.predict(test_data)
+global_model.evaluate(test_data, predictions = predictions, outputFile = parameter_dict['output_path'], plotAUC = True)
 finish = datetime.datetime.now() - start
 print(finish.total_seconds())
