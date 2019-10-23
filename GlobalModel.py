@@ -39,10 +39,15 @@ class GlobalModel(BaseModel):
     def train(self, user_day_data: Any)->None:
         self.model.fit(user_day_data.X, user_day_data.y,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose)
 
+    def validate(self, X: Any, Y: Any, validation_data = None)->None:
+        modelFit = self.model.fit(X, Y,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose, validation_data = validation_data)
+        # return an object for running cross-validation purposes
+        return modelFit
+
     def predict(self, user_day_data: Any)->List[int]:
         return self.model.predict(user_day_data.X).ravel()
 
-    def evaluate(self, user_day_data: Any, predictions: List[int], outputFile = None, plotAUC = False) -> dict():
+    def evaluate(self, user_day_data: Any, predictions: List[int], plotAUC = False) -> dict():
 
         # both 1 and 0 have to be true labels in test set to calculate AUC
         if 1 in predictions and 0 in predictions:
@@ -72,13 +77,6 @@ class GlobalModel(BaseModel):
 
         metrics = {"Number of Test Obs": predictions.shape[0], "FPR": fpr, "TPR": tpr, "AUC": auc_value, 'Score': score, 'Precision': precision, 'Recall': recall, 'F1': f1, 'Cohen': cohen}
         return metrics
-
-
-    def write(self, metrics = dict(), outputFile = None) -> None:
-        with open(outputFile, 'a') as output:
-            writer = csv.DictWriter(csvfile, fieldnames=list(metrics.keys()))
-            writer.writerow(metrics)
-
-
+        
     def reset(self)->None:
         pass
