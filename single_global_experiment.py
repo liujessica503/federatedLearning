@@ -27,7 +27,7 @@ from UserDayData import UserDayData
 import datetime
 start = datetime.datetime.now()
 
-with open('init.json') as file:
+with open(sys.argv[1]) as file:
         parameter_dict = json.load(file)
 
 train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
@@ -52,4 +52,4 @@ with open(parameter_dict['output_path'], 'w') as csvfile:
 
 print('results written to :' + parameter_dict['output_path'])
 finish = datetime.datetime.now() - start
-print(finish.total_seconds())
+print('Time to finish: ' + str(finish.total_seconds()))
