@@ -17,6 +17,7 @@ Need to check if we have enough test / valid data before splitting.
 
 import json
 import sys
+import csv
 
 # import user-defined functions
 from split_train_test_global import split_train_test_global
@@ -26,7 +27,7 @@ from UserDayData import UserDayData
 import datetime
 start = datetime.datetime.now()
 
-with open(sys.argv[1]) as file:
+with open('init.json') as file:
         parameter_dict = json.load(file)
 
 train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
@@ -39,6 +40,16 @@ test_data = UserDayData(test_covariates, test_labels, test_user_day_pairs)
 global_model = GlobalModel(parameter_config = parameter_dict)
 global_model.train(train_data)
 predictions = global_model.predict(test_data)
-global_model.evaluate(test_data, predictions = predictions, outputFile = parameter_dict['output_path'], plotAUC = True)
+metrics = global_model.evaluate(test_data, predictions = predictions, plotAUC = True)
+print(metrics)
+
+# write metrics to csv
+csv_columns = list(metrics.keys())
+with open(parameter_dict['output_path'], 'w') as csvfile:
+    writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
+    writer.writeheader()
+    writer.writerow(metrics)
+
+print('results written to :' + parameter_dict['output_path'])
 finish = datetime.datetime.now() - start
 print(finish.total_seconds())
