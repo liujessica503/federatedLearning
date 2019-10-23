@@ -34,7 +34,7 @@ class BaseModel(ABC):
         binary_prediction = predictions > 0.50
 
         # both 1 and 0 have to be true labels in test set to calculate AUC
-        if 1 in binary_prediction and 0 in binary_prediction:
+        if 1 in user_day_data.y and 0 in user_day_data.y:
             # false and true positive rates and thresholds
             fpr, tpr, thresholds = roc_curve(user_day_data.y, binary_prediction)
             auc_value = auc(fpr, tpr)
@@ -55,7 +55,7 @@ class BaseModel(ABC):
         # Cohen's kappa - classification accuracy normalized by the imbalance of the classes in the data
         cohen = cohen_kappa_score(user_day_data.y, binary_prediction)
 
-        metrics = {"Number of Test Obs": predictions.shape[0], "FPR": fpr, "TPR": tpr, "AUC": auc_value, 'Score': score, 'Precision': precision, 'Recall': recall, 'F1': f1, 'Cohen': cohen}
+        metrics = {"Number of Test Obs": user_day_data.y.shape[0], "FPR": fpr, "TPR": tpr, "AUC": auc_value, 'Score': score, 'Precision': precision, 'Recall': recall, 'F1': f1, 'Cohen': cohen}
         return metrics
 
     @abstractmethod
