@@ -47,9 +47,9 @@ results = []
 # name csv file and columns
 csv_file = "results_binary_split1.csv"   
 # # for predicting test set
-# csv_columns = ['User', 'Number of Test Obs', 'FPR', 'TPR', 'AUC', 'Score','Precision', 'Recall', 'F1', 'Cohen']
+csv_columns = ['User', 'Number of Test Obs', 'FPR', 'TPR', 'AUC', 'Score','Precision', 'Recall', 'F1', 'Cohen']
 # for predicting training set
-csv_columns = ['User', 'Number of Training Obs', 'FPR', 'TPR', 'AUC', 'Score','Precision', 'Recall', 'F1', 'Cohen']
+# csv_columns = ['User', 'Number of Training Obs', 'FPR', 'TPR', 'AUC', 'Score','Precision', 'Recall', 'F1', 'Cohen']
 
 # read in sample data
 # data = pd.read_csv('user_303495_data.csv')
@@ -188,8 +188,10 @@ def train_binary_mood(data, hidden_units, input_dim, saveAs):
     model.compile(loss='binary_crossentropy',
                   optimizer = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False),
                   metrics=['accuracy'])
+    
+    model.fit(X_train, Y_train, epochs = 8, batch_size = 40, verbose = 1)
                        
-    """ ######### COMMENT IN FOR PREDICTING TEST SET LABELS ########
+    ######### COMMENT IN FOR PREDICTING TEST SET LABELS ########
     # predict test set labels
     # had to install nomkl in anaconda for this to run
     # this outputs a probability of being in class 1
@@ -200,7 +202,7 @@ def train_binary_mood(data, hidden_units, input_dim, saveAs):
         # false and true positive rates and thresholds
         fpr, tpr, thresholds = roc_curve(Y_test, Y_pred)
         auc_value = auc(fpr, tpr)
-        print('AUC: ' + str(auc))
+        print('AUC: ' + str(auc_value))
     else:
         fpr, tpr, thresholds, auc_value = ["","","",""] #initialize since we're printing to the csv
     
@@ -224,8 +226,9 @@ def train_binary_mood(data, hidden_units, input_dim, saveAs):
     
     return new_binary_result
 
-    """ 
 
+
+    '''
     ######### COMMENT IN FOR PREDICTING TRAINING SET LABELS ########
     # predict training set labels (as a comparison to test set labels, which we will also predict, i.e. change all instances below of X_train and Y_train to X_test and Y_test)
     # had to install nomkl in anaconda for this to run
@@ -237,7 +240,7 @@ def train_binary_mood(data, hidden_units, input_dim, saveAs):
         # false and true positive rates and thresholds
         fpr, tpr, thresholds = roc_curve(Y_train, Y_pred)
         auc_value = auc(fpr, tpr)
-        print('AUC: ' + str(auc))
+        print('AUC: ' + str(auc_value))
     else:
         fpr, tpr, thresholds, auc_value = ["","","",""] #initialize since we're printing to the csv
     
@@ -260,6 +263,7 @@ def train_binary_mood(data, hidden_units, input_dim, saveAs):
     new_binary_result = {'User': saveAs, "Number of Training Obs": Y_train.shape[0], "FPR": fpr, "TPR": tpr, "AUC": auc_value, 'Score': score, 'Precision': precision, 'Recall': recall, 'F1': f1, 'Cohen': cohen}
     
     return new_binary_result
+    '''
 
 
 
