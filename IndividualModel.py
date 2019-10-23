@@ -1,10 +1,12 @@
 from BaseModel import BaseModel
+import copy
 from plot_auc import plot_auc
 from typing import Dict, List, Any
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import optimizers
 from keras.optimizers import SGD, RMSprop, Adam
+import numpy as np
 # for binary classification
 from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_score, recall_score, f1_score, cohen_kappa_score
 # to write to csv
@@ -15,16 +17,16 @@ class IndividualModel(BaseModel):
     def __init__(self, parameter_config: dict()):
         super().__init__(parameter_config)
 
-        self.model = Sequential()
+        self.template_model = Sequential()
 
-        self.model.add(Dense(self.layers[0], input_dim=self.input_dim, activation=self.activation))
+        self.template_model.add(Dense(self.layers[0], input_dim=self.input_dim, activation=self.activation))
 
         for i in range(1,len(self.layers)):
-            self.model.add(Dense(self.layers[i], activation = self.activation))
+            self.template_model.add(Dense(self.layers[i], activation = self.activation))
 
 
-        self.model.add(Dense(1, activation='sigmoid'))
-        self.model.compile(
+        self.template_model.add(Dense(1, activation='sigmoid'))
+        self.template_model.compile(
             loss=self.loss,
             optimizer = optimizers.Adam(
                 lr=self.lr, 
@@ -37,49 +39,65 @@ class IndividualModel(BaseModel):
             metrics=['accuracy'],
         )
 
-    def train(self, X_dict: Any, Y_dict: Any, validation_data = None)->None:
-        modelFit = self.model.fit(X_dict, Y_dict,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose, validation_data = validation_data)
-        return modelFit
+    def train(self, user_day_data: Any, validation_data = None)->None:
+        self.unique_users = np.unique([x[0] for x in user_day_data.user_day_pairs])
+        self.models_dict = {}
+        self.scalers_dict = {}
+        for user in self.unique_users:
+            user_model = copy.deepcopy(self.template_model)
+            X_train, Y_train = user_day_data.get_data_for_users([user])
+            user_scaler = StandardScaler().fit(X_train)
+            X_train = user_scaler.transform(X_train)
 
-    def predict(self, X_dict: Any)->List[int]:
-        return self.model.predict(X_dict).ravel()
+            user_model.fit(X_train, Y_train,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose)
 
-    def evaluate(self, test_covariates: Any, test_labels: List[int], predictions: List[int], plotAUC = False) -> dict():
+            self.models_dict[user] = user_model
+            self.scalers_dict[user] = user_scaler
 
-        # both 1 and 0 have to be true labels in test set to calculate AUC
-        if 1 in predictions and 0 in predictions:
-            # false and true positive rates and thresholds
-            fpr, tpr, thresholds = roc_curve(test_labels, predictions)
-            auc_value = auc(fpr, tpr)
-            if plotAUC == True:
-                plot_auc(fpr, tpr, auc_value, filename = self.auc_output_path)
+        # modelFit = self.model.fit(X_dict, Y_dict,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose, validation_data = validation_data)
+        # return modelFit
+
+    def predict(self, user_day_data: Any)->List[int]:
+        self.predictions_dict = {}
+
+        try:
+            for user in self.unique_users:
+                try:
+                    user_model = self.models_dict[user]
+                    X_test = self.scaler.transform(user_day_data.X)
+                    prediction = user_model.predict(X_test).ravel()
+                    self.predictions_dict[user] = prediction
+                except:
+                    print('no data found for this user')
+                    continue
+
+        # print message if self.unique_users doesn't exist
+        except NameError:
+            print('missing unique_users (created in train method)')
         else:
-            fpr, tpr, thresholds, auc_value = ["","","",""] #initialize since we're printing to the csv
+            print('error in predict method')
+        return self.predictions_dict
 
+    def individual_evaluate(self, user_day_data: Any, plotAUC = False) -> dict():
+        self.metrics_dict = {}
 
-        # get more metrics
-            # since the class labels are binary, choose a probability cutoff to make the predictions binary
-        binary_prediction = predictions > 0.50
-        # evaluate performance
-        score = self.model.evaluate(test_covariates, test_labels,verbose=1)
-        # Precision 
-        precision = precision_score(test_labels, binary_prediction)
-        # Recall
-        recall = recall_score(test_labels, binary_prediction)
-        # print('Precision: ' + str(precision) + ', Recall: ' + str(recall))
-        # F1 score - weighted average of precision and recall
-        f1 = f1_score(test_labels, binary_prediction)
-        # Cohen's kappa - classification accuracy normalized by the imbalance of the classes in the data
-        cohen = cohen_kappa_score(test_labels, binary_prediction)
+        try:
+            for user in self.unique_users:
+                try:
+                    predictions = self.predictions_dict[user]
 
-        metrics = {"Number of Test Obs": predictions.shape[0], "FPR": fpr, "TPR": tpr, "AUC": auc_value, 'Score': score, 'Precision': precision, 'Recall': recall, 'F1': f1, 'Cohen': cohen}
-        return metrics
+                    metrics = evaluate(user_day_data = user_day_data, predictions = predictions, plotAUC = plotAUC)
+                    self.metrics_dict[user] = metrics
+                except:
+                    print('no predictions found for this user')
+                    continue
 
-
-    def write(self, metrics = dict(), outputFile = None) -> None:
-        with open(outputFile, 'a') as output:
-            writer = csv.DictWriter(csvfile, fieldnames=list(metrics.keys()))
-            writer.writerow(metrics)
+        # print message if self.unique_users doesn't exist
+        except NameError:
+            print('missing unique_users (created in train method)')
+        else:
+            print('error in evaluate method')
+        return self.metrics_dict
 
 
     def reset(self)->None:
