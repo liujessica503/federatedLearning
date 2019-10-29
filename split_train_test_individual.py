@@ -12,7 +12,7 @@ from collections import OrderedDict
 from get_binary_mood import get_binary_mood
 
 def split_train_test_individual(file, cv):
-	userID = file[-15:-9]	
+	userID = file[-15:-9]
 	train_data = pd.read_csv(file).iloc[0:71*cv,:]
 	test_data  = pd.read_csv(file).iloc[71*cv:,:]
 	if test_data.shape[0] == 0:

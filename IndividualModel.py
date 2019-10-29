@@ -1,12 +1,14 @@
 from BaseModel import BaseModel
 import copy
+import numpy as np
 from plot_auc import plot_auc
 from typing import Dict, List, Any
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import optimizers
 from keras.optimizers import SGD, RMSprop, Adam
-import numpy as np
+# standardize the data
+from sklearn.preprocessing import StandardScaler
 # for binary classification
 from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_score, recall_score, f1_score, cohen_kappa_score
 # to write to csv
@@ -57,15 +59,16 @@ class IndividualModel(BaseModel):
         # modelFit = self.model.fit(X_dict, Y_dict,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose, validation_data = validation_data)
         # return modelFit
 
-    def predict(self, user_day_data: Any)->List[int]:
+    def predict(self, user_day_data: Any)-> None:
         self.predictions_dict = {}
 
         try:
             for user in self.unique_users:
                 try:
-                    user_model = self.models_dict[user]
-                    X_test = self.scaler.transform(user_day_data.X)
-                    prediction = user_model.predict(X_test).ravel()
+                    user_prediction_model = self.models_dict[user]
+                    user_prediction_scaler = self.scalers_dict[user]
+                    X_test = user_prediction_scaler.transform(user_day_data.X)
+                    prediction = user_prediction_model.predict(X_test).ravel()
                     self.predictions_dict[user] = prediction
                 except:
                     print('no data found for this user')
@@ -78,7 +81,7 @@ class IndividualModel(BaseModel):
             print('error in predict method')
         return self.predictions_dict
 
-    def individual_evaluate(self, user_day_data: Any, plotAUC = False) -> dict():
+    def individual_evaluate(self, user_day_data: Any, predictions_dict: Any, plotAUC = False) -> dict():
         self.metrics_dict = {}
 
         try:
@@ -88,6 +91,7 @@ class IndividualModel(BaseModel):
 
                     metrics = evaluate(user_day_data = user_day_data, predictions = predictions, plotAUC = plotAUC)
                     self.metrics_dict[user] = metrics
+                    print(metrics)
                 except:
                     print('no predictions found for this user')
                     continue
