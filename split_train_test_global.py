@@ -56,5 +56,5 @@ def split_train_test_global(directory, cv):
         train_user_day_pairs, 
         test_covariates, 
         test_labels, 
-        test_pairs
+        test_user_day_pairs
     )
