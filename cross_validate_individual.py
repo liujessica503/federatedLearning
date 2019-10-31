@@ -37,6 +37,9 @@ from sklearn.preprocessing import StandardScaler
 from IndividualModel import IndividualModel
 from split_train_test_global import split_train_test_global
 from UserDayData import UserDayData
+import keras
+from keras import optimizers
+from keras.optimizers import SGD, RMSprop, Adam
 
 k = 3
 # split our 142 days of training data into k partitions
@@ -78,7 +81,24 @@ for user in user_list:
         # AND custom learn rate
         model = IndividualModel(parameter_config = parameter_dict, custom_lr = curr_lr)
         # similar to IndividualModel train method
-        user_model = copy.deepcopy(model.template_model)
+        #user_model = copy.deepcopy(model.template_model)
+        # deepycopy-ing model doesn't work in flux
+        # so we clone, build, and compile instead
+        
+        user_model = keras.models.clone_model(model.template_model)
+        user_model.build((None, parameter_dict['layers'][0])) # replace 10 with number of variables in input layer
+        user_model.compile(loss=parameter_dict['loss'],
+                optimizer = optimizers.Adam(
+                    lr=curr_lr, 
+                    beta_1=0.9, 
+                    beta_2=0.999, 
+                    epsilon=None, 
+                    decay=0.0, 
+                    amsgrad=False
+                ),
+                metrics=['accuracy'],
+            )   
+        #user_model.set_weights(model.get_weights())
         # k-fold cross-validation on an individual's data
 
         # list of length k of loss on validation set for this individual
