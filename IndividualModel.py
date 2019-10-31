@@ -13,10 +13,11 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_curve, auc, confusion_matrix, precision_score, recall_score, f1_score, cohen_kappa_score
 # to write to csv
 import csv
+from UserDayData import UserDayData
 
 class IndividualModel(BaseModel):
 
-    def __init__(self, parameter_config: dict()):
+    def __init__(self, parameter_config: dict(), custom_lr = None):
         super().__init__(parameter_config)
 
         self.template_model = Sequential()
@@ -28,18 +29,37 @@ class IndividualModel(BaseModel):
 
 
         self.template_model.add(Dense(1, activation='sigmoid'))
-        self.template_model.compile(
-            loss=self.loss,
-            optimizer = optimizers.Adam(
-                lr=self.lr, 
-                beta_1=0.9, 
-                beta_2=0.999, 
-                epsilon=None, 
-                decay=0.0, 
-                amsgrad=False
-            ),
-            metrics=['accuracy'],
-        )
+        
+        # default is to use the learning rate from parameter_config
+        # but if lr argument is provided, use the argument instead.
+        if custom_lr == None:
+
+            self.template_model.compile(
+                loss=self.loss,
+                optimizer = optimizers.Adam(
+                    lr=self.lr, 
+                    beta_1=0.9, 
+                    beta_2=0.999, 
+                    epsilon=None, 
+                    decay=0.0, 
+                    amsgrad=False
+                ),
+                metrics=['accuracy'],
+            )
+
+        elif custom_lr != None:
+            self.template_model.compile(
+                loss=self.loss,
+                optimizer = optimizers.Adam(
+                    lr=custom_lr, 
+                    beta_1=0.9, 
+                    beta_2=0.999, 
+                    epsilon=None, 
+                    decay=0.0, 
+                    amsgrad=False
+                ),
+                metrics=['accuracy'],
+            )
 
     def train(self, user_day_data: Any, validation_data = None)->None:
         self.unique_users = np.unique([x[0] for x in user_day_data.user_day_pairs])
@@ -47,11 +67,13 @@ class IndividualModel(BaseModel):
         self.scalers_dict = {}
         for user in self.unique_users:
             user_model = copy.deepcopy(self.template_model)
+            # get user-specific data
             X_train, Y_train = user_day_data.get_data_for_users([user])
             user_scaler = StandardScaler().fit(X_train)
             X_train = user_scaler.transform(X_train)
 
-            user_model.fit(X_train, Y_train,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose)
+            # apply the template model, created in the init, to our data
+            user_model.fit(X_train, Y_train,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose, validation_data = validation_data)
 
             self.models_dict[user] = user_model
             self.scalers_dict[user] = user_scaler
@@ -64,43 +86,37 @@ class IndividualModel(BaseModel):
 
         try:
             for user in self.unique_users:
-                try:
-                    user_prediction_model = self.models_dict[user]
-                    user_prediction_scaler = self.scalers_dict[user]
-                    X_test = user_prediction_scaler.transform(user_day_data.X)
+                user_prediction_model = self.models_dict[user]
+                user_prediction_scaler = self.scalers_dict[user]
+                # get user-specific data
+                    # we are not getting X_test, Y_test correctly using get_data_for_users
+
+                X_test, Y_test = user_day_data.get_data_for_users([user])
+                if len(Y_test) > 0:
+                    X_test = user_prediction_scaler.transform(X_test)
                     prediction = user_prediction_model.predict(X_test).ravel()
                     self.predictions_dict[user] = prediction
-                except:
+                else:
                     print('no data found for this user')
-                    continue
-
         # print message if self.unique_users doesn't exist
+        # fix this as an if statement
         except NameError:
             print('missing unique_users (created in train method)')
-        else:
-            print('error in predict method')
         return self.predictions_dict
 
     def individual_evaluate(self, user_day_data: Any, predictions_dict: Any, plotAUC = False) -> dict():
         self.metrics_dict = {}
-
+        ### this method may be broken.
         try:
             for user in self.unique_users:
-                try:
-                    predictions = self.predictions_dict[user]
-
+                if user in self.predictions_dict.keys():
                     metrics = evaluate(user_day_data = user_day_data, predictions = predictions, plotAUC = plotAUC)
                     self.metrics_dict[user] = metrics
                     print(metrics)
-                except:
-                    print('no predictions found for this user')
-                    continue
 
         # print message if self.unique_users doesn't exist
         except NameError:
             print('missing unique_users (created in train method)')
-        else:
-            print('error in evaluate method')
         return self.metrics_dict
 
 
