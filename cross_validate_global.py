@@ -23,6 +23,7 @@ import pandas as pd
 import numpy as np
 import glob
 import os
+import pickle
 # import user-defined functions
 from GlobalModel import GlobalModel
 from split_train_test_global import split_train_test_global
@@ -38,38 +39,56 @@ with open(sys.argv[1]) as file:
         parameter_dict = json.load(file)
 
 epochs = parameter_dict['epochs']
+# write cv results as we process each one
+output_path = parameter_dict['output_path']
+# output python dictionary so that we can read it in easily
+cv_dict_file = parameter_dict['cv_dict_file']
 
 # code derived from Chollet 'Deep Learning with Python'
 
 # k-fold cross-validation on an individual's data
 
-# list of length k of loss on validation set
-val_loss_list = []
-for i in range(k):
-    print('processing fold #', i)
+# dictionary, key is learning rate and value is val_loss_list
+loss_by_lr = {}
 
-    # get all of our training data that we will then partition into k-folds
-    train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
-        directory = parameter_dict['input_directory'], 
-        cv = parameter_dict['cv'])
-    # go to next file if we have no test data
-    if train_covariates is not None:
-        val_covariates = train_covariates[i * num_val_samples: (i + 1) * num_val_samples]
-        val_labels = train_labels[i * num_val_samples: (i + 1) * num_val_samples]
-        partial_train_covariates = np.concatenate( [train_covariates[:i * num_val_samples],
-            train_covariates[(i + 1) * num_val_samples:]], axis=0)
-        partial_train_labels = np.concatenate( [train_labels[:i * num_val_samples],
-            train_labels[(i + 1) * num_val_samples:]], axis=0)
-        # build the keras model (already compiled)
-        # model = build_model()
-        # compile model
-        model = GlobalModel(parameter_config = parameter_dict)
-        modelFit = model.validate(partial_train_covariates, partial_train_labels, validation_data = (val_covariates, val_labels))
+for curr_lr in (10**-5, 10**-4, 10**-3, 10**-2, 10**-1):
+    # list of length k of loss on validation set
+    val_loss_list = []
+    for i in range(k):
+        print('processing fold #', i)
 
-        # get the loss for the last epoch
-        val_loss = modelFit.history['val_loss'][epochs-1]
-        val_loss_list.append(val_loss)
+        # get all of our training data that we will then partition into k-folds
+        train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
+            directory = parameter_dict['input_directory'], 
+            cv = parameter_dict['cv'])
+        # go to next file if we have no test data
+        if train_covariates is not None:
+            val_covariates = train_covariates[i * num_val_samples: (i + 1) * num_val_samples]
+            val_labels = train_labels[i * num_val_samples: (i + 1) * num_val_samples]
+            partial_train_covariates = np.concatenate( [train_covariates[:i * num_val_samples],
+                train_covariates[(i + 1) * num_val_samples:]], axis=0)
+            partial_train_labels = np.concatenate( [train_labels[:i * num_val_samples],
+                train_labels[(i + 1) * num_val_samples:]], axis=0)
+            # build the keras model (already compiled)
+            # model = build_model()
+            # compile model
+            model = GlobalModel(parameter_config = parameter_dict)
+            modelFit = model.validate(partial_train_covariates, partial_train_labels, validation_data = (val_covariates, val_labels))
 
+            # get the loss for the last epoch
+            val_loss = modelFit.history['val_loss'][epochs-1]
+            val_loss_list.append(val_loss)
+    loss_by_lr[curr_lr] = val_loss_list
+
+# save the user_loss dictionary
+with open(cv_dict_file, 'wb') as dict_file:
+    pickle.dump(loss_by_lr, dict_file)
+
+''' 
+ # to read in dictionary later: 
+with open(csv_file, 'rb') as handle:
+  global_loss_data = pickle.loads(handle.read())
+'''
 
 
 '''
