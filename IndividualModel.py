@@ -3,6 +3,7 @@ import copy
 import numpy as np
 from plot_auc import plot_auc
 from typing import Dict, List, Any
+import keras
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import optimizers
@@ -32,6 +33,7 @@ class IndividualModel(BaseModel):
         
         # default is to use the learning rate from parameter_config
         # but if lr argument is provided, use the argument instead.
+        # ex. we provide lr argument in cross_validate_individual.py
         if custom_lr == None:
 
             self.template_model.compile(
@@ -66,7 +68,23 @@ class IndividualModel(BaseModel):
         self.models_dict = {}
         self.scalers_dict = {}
         for user in self.unique_users:
-            user_model = copy.deepcopy(self.template_model)
+            ## deep copy-ing doesn't work in flux
+            # user_model = copy.deepcopy(self.template_model)
+            # so we clone, build, and compile instead 
+
+            user_model = keras.models.clone_model(self.template_model)
+            user_model.set_weights(self.template_model.get_weights())
+            user_model.compile(loss=self.loss,
+                optimizer = optimizers.Adam(
+                    lr=self.lr, 
+                    beta_1=0.9, 
+                    beta_2=0.999, 
+                    epsilon=None, 
+                    decay=0.0, 
+                    amsgrad=False
+                ),
+                metrics=['accuracy'],
+            ) 
             # get user-specific data
             X_train, Y_train = user_day_data.get_data_for_users([user])
             user_scaler = StandardScaler().fit(X_train)
@@ -84,39 +102,54 @@ class IndividualModel(BaseModel):
     def predict(self, user_day_data: Any)-> None:
         self.predictions_dict = {}
 
+        # check if unique.users exists
+        # and only proceed if so
         try:
-            for user in self.unique_users:
-                user_prediction_model = self.models_dict[user]
-                user_prediction_scaler = self.scalers_dict[user]
-                # get user-specific data
-                    # we are not getting X_test, Y_test correctly using get_data_for_users
-
-                X_test, Y_test = user_day_data.get_data_for_users([user])
-                if len(Y_test) > 0:
-                    X_test = user_prediction_scaler.transform(X_test)
-                    prediction = user_prediction_model.predict(X_test).ravel()
-                    self.predictions_dict[user] = prediction
-                else:
-                    print('no data found for this user')
-        # print message if self.unique_users doesn't exist
-        # fix this as an if statement
+            self.unique_users
         except NameError:
-            print('missing unique_users (created in train method)')
+            self.unique_users = None
+            print('Please run the train method and create unique_users')
+            return None
+
+        for user in self.unique_users:
+            user_prediction_model = self.models_dict[user]
+            user_prediction_scaler = self.scalers_dict[user]
+            X_test, Y_test = user_day_data.get_data_for_users([user])
+            if len(Y_test) > 0:
+                X_test = user_prediction_scaler.transform(X_test)
+                prediction = user_prediction_model.predict(X_test).ravel()
+                self.predictions_dict[user] = prediction
+            else:
+                print('no data found for user ')
         return self.predictions_dict
 
     def individual_evaluate(self, user_day_data: Any, predictions_dict: Any, plotAUC = False) -> dict():
         self.metrics_dict = {}
-        ### this method may be broken.
-        try:
-            for user in self.unique_users:
-                if user in self.predictions_dict.keys():
-                    metrics = evaluate(user_day_data = user_day_data, predictions = predictions, plotAUC = plotAUC)
-                    self.metrics_dict[user] = metrics
-                    print(metrics)
 
-        # print message if self.unique_users doesn't exist
+        # check if unique.users exists
+        # and only proceed if so
+        try:
+            self.unique_users
         except NameError:
-            print('missing unique_users (created in train method)')
+            self.unique_users = None
+            print('Please run the train method and create unique_users')
+            return None
+
+        for user in self.unique_users:
+            if user in self.predictions_dict.keys():
+                user_prediction_model = self.models_dict[user]
+                user_prediction_scaler = self.scalers_dict[user]
+                X_test, Y_test = user_day_data.get_data_for_users([user])
+                # if we have test data for this user
+                # scale it
+                if len(Y_test) > 0:
+                    X_test = user_prediction_scaler.transform(X_test)
+                metrics = self.evaluate(user_model = user_prediction_model, 
+                    test_covariates = X_test, test_labels = Y_test, 
+                    predictions = predictions_dict[user], plotAUC = plotAUC)
+                self.metrics_dict[user] = metrics
+                print(metrics)
+
         return self.metrics_dict
 
 
