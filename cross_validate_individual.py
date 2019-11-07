@@ -82,11 +82,11 @@ for user in user_list:
         model = IndividualModel(parameter_config = parameter_dict, custom_lr = curr_lr)
         # similar to IndividualModel train method
         #user_model = copy.deepcopy(model.template_model)
-        # deepycopy-ing model doesn't work in flux
-        # so we clone, build, and compile instead
+        # deep copy-ing model doesn't work in flux
+        # so we clone, load weights, and compile instead
         
         user_model = keras.models.clone_model(model.template_model)
-        user_model.build((None, parameter_dict['layers'][0])) # replace 10 with number of variables in input layer
+        user_model.set_weights(model.template_model.get_weights())
         user_model.compile(loss=parameter_dict['loss'],
                 optimizer = optimizers.Adam(
                     lr=curr_lr, 
