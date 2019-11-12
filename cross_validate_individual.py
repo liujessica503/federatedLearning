@@ -40,6 +40,8 @@ from UserDayData import UserDayData
 import keras
 from keras import optimizers
 from keras.optimizers import SGD, RMSprop, Adam
+# to clear model after use
+from keras import backend as K 
 
 k = 3
 # split our 142 days of training data into k partitions
@@ -76,7 +78,7 @@ for user in user_list:
     # dictionary, key is learning rate and value is val_loss_list
     user_loss_by_lr = {}
 
-    for curr_lr in (10**-5, 10**-1):
+    for curr_lr in np.arange(0.15, 0.25, 0.01):
         # instantiate model with parameters from json file 
         # AND custom learn rate
         model = IndividualModel(parameter_config = parameter_dict, custom_lr = curr_lr)
@@ -131,6 +133,9 @@ for user in user_list:
 
         # add user and list of validation losses to dictionary
         user_loss_by_lr[curr_lr] = val_loss_list
+
+        # delete model
+        K.clear_session()
 
     user_loss[user] = user_loss_by_lr
 
