@@ -25,6 +25,7 @@ import csv
 from split_train_test_global import split_train_test_global
 from get_binary_mood import get_binary_mood
 from IndividualModel import IndividualModel
+from BaseModel import BaseModel
 from UserDayData import UserDayData
 
 import datetime
@@ -49,7 +50,6 @@ individual_model.train(train_data)
 predictions_dict = individual_model.predict(test_data)
 metrics_dict = individual_model.individual_evaluate(test_data, predictions_dict = predictions_dict, plotAUC = True)
 
-
 # write metrics to csv
 
 # for the csv columns: get the names of our metrics
@@ -63,10 +63,10 @@ with open(parameter_dict['output_path'], 'w') as csvfile:
     writer.writeheader()
     for user in metrics_dict:
     	user_metrics = metrics_dict[user]
-    	writer.writerow(metrics)
+    	writer.writerow(user_metrics)
 
 
-print('results written to :' + parameter_dict['output_path'])
+print('results written to: ' + parameter_dict['output_path'])
 
 finish = datetime.datetime.now() - start
 print('Time to finish: ' + str(finish.total_seconds()))
