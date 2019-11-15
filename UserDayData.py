@@ -1,9 +1,12 @@
 from typing import Any, List, Tuple
+import numpy as np
 
 
 class UserDayData:
 
-    def __init__(self, X, y, user_day_pairs: List[Tuple[int]])->Any:
+    def __init__(self, X, user_day_pairs: List[Tuple[int]], y=None)->Any:
+        if y is None:
+            y = np.empty(X.shape[0])
         self.X = X
         self.y = y
         self.user_day_pairs = user_day_pairs
