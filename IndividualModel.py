@@ -7,7 +7,6 @@ from keras.layers import Dense
 from keras import optimizers
 # standardize the data
 from sklearn.preprocessing import StandardScaler
-# for binary classification
 
 
 class IndividualModel(BaseModel):
@@ -101,7 +100,7 @@ class IndividualModel(BaseModel):
                 epochs=self.epochs,
                 batch_size=self.batch_size,
                 verbose=self.verbose,
-                alidation_data=validation_data
+                validation_data=validation_data
             )
 
             self.models_dict[user] = user_model
