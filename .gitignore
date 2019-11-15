@@ -4,3 +4,7 @@ data/
 init_jack\.json
 
 *.pyc
+
+single_jack\.json
+
+results/
