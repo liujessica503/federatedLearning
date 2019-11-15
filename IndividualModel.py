@@ -7,12 +7,13 @@ from keras.layers import Dense
 from keras import optimizers
 # standardize the data
 from sklearn.preprocessing import StandardScaler
+import tensorflow as tf
 
 
 class IndividualModel(BaseModel):
 
-    def __init__(self, parameter_config: dict(), custom_lr=None):
-        super().__init__(parameter_config)
+    def __init__(self, parameter_config: dict, parameter_overwrite={}):
+        super().__init__(parameter_config, parameter_overwrite)
 
         self.template_model = Sequential()
 
@@ -34,34 +35,19 @@ class IndividualModel(BaseModel):
         # default is to use the learning rate from parameter_config
         # but if lr argument is provided, use the argument instead.
         # ex. we provide lr argument in cross_validate_individual.py
-        if custom_lr is None:
 
-            self.template_model.compile(
-                loss=self.loss,
-                optimizer=optimizers.Adam(
-                    lr=self.lr,
-                    beta_1=0.9,
-                    beta_2=0.999,
-                    epsilon=None,
-                    decay=0.0,
-                    amsgrad=False,
-                ),
-                metrics=['accuracy'],
-            )
-
-        elif custom_lr is not None:
-            self.template_model.compile(
-                loss=self.loss,
-                optimizer=optimizers.Adam(
-                    lr=custom_lr,
-                    beta_1=0.9,
-                    beta_2=0.999,
-                    epsilon=None,
-                    decay=0.0,
-                    amsgrad=False,
-                ),
-                metrics=['accuracy'],
-            )
+        self.template_model.compile(
+            loss=self.loss,
+            optimizer=optimizers.Adam(
+                lr=self.lr,
+                beta_1=0.9,
+                beta_2=0.999,
+                epsilon=None,
+                decay=0.0,
+                amsgrad=False,
+            ),
+            metrics=['accuracy'],
+        )
 
     def train(self, user_day_data: Any, validation_data=None)->None:
         self.unique_users = np.unique(
@@ -105,6 +91,8 @@ class IndividualModel(BaseModel):
 
             self.models_dict[user] = user_model
             self.scalers_dict[user] = user_scaler
+            print(len(tf.trainable_variables()))
+            del user_model
 
         # modelFit = self.model.fit(X_dict, Y_dict,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose, validation_data = validation_data) # noqa
         # return modelFit

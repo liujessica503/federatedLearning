@@ -9,8 +9,8 @@ from sklearn.preprocessing import StandardScaler
 
 class GlobalModel(BaseModel):
 
-    def __init__(self, parameter_config: dict()):
-        super().__init__(parameter_config)
+    def __init__(self, parameter_config: dict, parameter_overwrite={}):
+        super().__init__(parameter_config, parameter_overwrite)
 
         self.model = Sequential()
 

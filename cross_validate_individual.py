@@ -81,7 +81,10 @@ for user in user_list:
     for curr_lr in np.arange(0.15, 0.25, 0.01):
         # instantiate model with parameters from json file 
         # AND custom learn rate
-        model = IndividualModel(parameter_config = parameter_dict, custom_lr = curr_lr)
+        model = IndividualModel(
+            parameter_config = parameter_dict,
+            parameter_overwrite = {"lr": curr_lr}
+        )
         # similar to IndividualModel train method
         #user_model = copy.deepcopy(model.template_model)
         # deep copy-ing model doesn't work in flux

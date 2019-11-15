@@ -13,7 +13,10 @@ from sklearn.metrics import (
 
 class BaseModel(ABC):
 
-    def __init__(self, parameter_config):
+    def __init__(self, parameter_config: dict, parameter_overwrite={}):
+
+        for k, v in parameter_overwrite.items():
+            parameter_config[k] = v
 
         self.layers = parameter_config["layers"]
         self.input_dim = parameter_config["input_dim"]
