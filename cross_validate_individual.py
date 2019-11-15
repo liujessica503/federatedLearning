@@ -61,7 +61,7 @@ verbose = parameter_dict['verbose']
 # write cv results as we process each one
 output_path = parameter_dict['output_path']
 # output python dictionary so that we can read it in easily
-cv_dict_file = parameter_dict['cv_dict_file']
+cv_dict_file = parameter_dict['cv_dict_file'] 
 
 train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
     directory = parameter_dict['input_directory'], 

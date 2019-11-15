@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, List
+from keras.models import Sequential
+from keras.layers import Dense
+from keras import optimizers
 from plot_auc import plot_auc
 from sklearn.metrics import (
     roc_curve,
@@ -29,6 +32,33 @@ class BaseModel(ABC):
         self.output_path = parameter_config["output_path"]
         self.auc_output_path = parameter_config["auc_output_path"]
         self.plot_auc = parameter_config["plot_auc"]
+
+        self.model = Sequential()
+
+        self.model.add(
+            Dense(
+                self.layers[0],
+                input_dim=self.input_dim,
+                activation=self.activation,
+            )
+        )
+
+        for i in range(1, len(self.layers)):
+            self.model.add(Dense(self.layers[i], activation=self.activation))
+
+        self.model.add(Dense(1, activation='sigmoid'))
+        self.model.compile(
+            loss=self.loss,
+            optimizer=optimizers.Adam(
+                lr=self.lr,
+                beta_1=0.9,
+                beta_2=0.999,
+                epsilon=None,
+                decay=0.0,
+                amsgrad=False,
+            ),
+            metrics=['accuracy'],
+        )
 
     @abstractmethod
     def train(self, X: Any, y: Any) -> None:

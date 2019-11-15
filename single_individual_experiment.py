@@ -18,43 +18,53 @@ Need to check if we have enough test / valid data before splitting.
 
 import json
 import sys
-import os
+
 import csv
 
 # import user-defined functions
 from split_train_test_global import split_train_test_global
-from get_binary_mood import get_binary_mood
+
 from IndividualModel import IndividualModel
-from BaseModel import BaseModel
+
 from UserDayData import UserDayData
 
 import datetime
 start = datetime.datetime.now()
 
 with open(sys.argv[1]) as file:
-		parameter_dict = json.load(file)
+        parameter_dict = json.load(file)
 
 counter = 0
 
-train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
-    directory = parameter_dict['input_directory'], 
-    cv = parameter_dict['cv'])
+(
+    train_covariates,
+    train_labels,
+    train_user_day_pairs,
+    test_covariates,
+    test_labels,
+    test_user_day_pairs
+) = split_train_test_global(
+    directory=parameter_dict['input_directory'],
+    cv=parameter_dict['cv'],
+)
 
 train_data = UserDayData(train_covariates, train_labels, train_user_day_pairs)
 test_data = UserDayData(test_covariates, test_labels, test_user_day_pairs)
-individual_model = IndividualModel(parameter_config = parameter_dict)
-# the train method iterates over each individual and 
+individual_model = IndividualModel(parameter_config=parameter_dict)
+# the train method iterates over each individual and
 # trains a model for each individual
 individual_model.train(train_data)
 # individual_model.model_dict to see trained models
 predictions_dict = individual_model.predict(test_data)
-metrics_dict = individual_model.individual_evaluate(test_data, predictions_dict = predictions_dict, plotAUC = True)
+metrics_dict = individual_model.individual_evaluate(
+    test_data, predictions_dict=predictions_dict, plotAUC=False
+)
 
 # write metrics to csv
 
 # for the csv columns: get the names of our metrics
 # by getting the values of the first dictionary entry
-first_metrics_dict_entry = next(iter( metrics_dict.items() ))
+first_metrics_dict_entry = next(iter(metrics_dict.items()))
 # since we have a dictionary within each value, now we want the keys
 csv_columns = list(first_metrics_dict_entry[1].keys())
 
@@ -62,8 +72,8 @@ with open(parameter_dict['output_path'], 'w') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
     writer.writeheader()
     for user in metrics_dict:
-    	user_metrics = metrics_dict[user]
-    	writer.writerow(user_metrics)
+        user_metrics = metrics_dict[user]
+        writer.writerow(user_metrics)
 
 
 print('results written to: ' + parameter_dict['output_path'])

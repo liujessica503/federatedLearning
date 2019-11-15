@@ -1,43 +1,10 @@
 from BaseModel import BaseModel
 from typing import List, Any
-from keras.models import Sequential
-from keras.layers import Dense
-from keras import optimizers
 # standardize the data
 from sklearn.preprocessing import StandardScaler
 
 
 class GlobalModel(BaseModel):
-
-    def __init__(self, parameter_config: dict, parameter_overwrite={}):
-        super().__init__(parameter_config, parameter_overwrite)
-
-        self.model = Sequential()
-
-        self.model.add(
-            Dense(
-                self.layers[0],
-                input_dim=self.input_dim,
-                activation=self.activation,
-            )
-        )
-
-        for i in range(1, len(self.layers)):
-            self.model.add(Dense(self.layers[i], activation=self.activation))
-
-        self.model.add(Dense(1, activation='sigmoid'))
-        self.model.compile(
-            loss=self.loss,
-            optimizer=optimizers.Adam(
-                lr=self.lr,
-                beta_1=0.9,
-                beta_2=0.999,
-                epsilon=None,
-                decay=0.0,
-                amsgrad=False,
-            ),
-            metrics=['accuracy'],
-        )
 
     def train(self, user_day_data: Any)->None:
         self.scaler = StandardScaler().fit(user_day_data.X)
