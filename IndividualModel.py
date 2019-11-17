@@ -19,9 +19,6 @@ class IndividualModel(BaseModel):
         self.model_weights_dict = {}
         self.scalers_dict = {}
         for user in self.unique_users:
-            # deep copy-ing doesn't work in flux
-            # user_model = copy.deepcopy(self.template_model)
-            # so we clone, build, and compile instead
 
             self.model.set_weights(self.initialization)
 
@@ -42,9 +39,6 @@ class IndividualModel(BaseModel):
 
             self.model_weights_dict[user] = self.model.get_weights()
             self.scalers_dict[user] = user_scaler
-
-        # modelFit = self.model.fit(X_dict, Y_dict,epochs=self.epochs, batch_size=self.batch_size, verbose=self.verbose, validation_data = validation_data) # noqa
-        # return modelFit
 
     def predict(self, user_day_data: Any)->List[float]:
 
@@ -107,7 +101,6 @@ class IndividualModel(BaseModel):
         metrics_dict = {}
 
         for user in eval_users:
-            # self.model.set_weights(self.model_weights_dict[user])
             # TODO: Fix risky fake user_day list
             ind_X, ind_y = user_day_data.get_data_for_users([user])
             ind_user_day_data = UserDayData(
