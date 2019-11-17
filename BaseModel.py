@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import Any, List, Dict
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import optimizers
@@ -16,7 +16,9 @@ from sklearn.metrics import (
 
 class BaseModel(ABC):
 
-    def __init__(self, parameter_config: dict, parameter_overwrite={}):
+    def __init__(
+        self, parameter_config: Dict[float, str], parameter_overwrite={}
+    ):
 
         for k, v in parameter_overwrite.items():
             parameter_config[k] = v
@@ -104,8 +106,8 @@ class BaseModel(ABC):
 
         metrics = {
             "Number of Test Obs": test_labels.shape[0],
-            "FPR": fpr,
-            "TPR": tpr,
+            # "FPR": fpr,
+            # "TPR": tpr,
             "AUC": auc_value,
             'Score': score,
             'Precision': precision,

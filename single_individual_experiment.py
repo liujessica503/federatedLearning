@@ -61,7 +61,6 @@ individual_model.train(train_data)
 # individual_model.model_dict to see trained models
 predictions = individual_model.predict(test_data)
 metrics_dict = individual_model.individual_evaluate(test_data, plotAUC=False)
-import pdb; pdb.set_trace()
 
 # write metrics to csv
 

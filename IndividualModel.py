@@ -1,6 +1,6 @@
 from BaseModel import BaseModel
 import numpy as np
-from typing import Any, List
+from typing import Any, List, Dict
 # standardize the data
 from sklearn.preprocessing import StandardScaler
 from UserDayData import UserDayData
@@ -8,7 +8,9 @@ from UserDayData import UserDayData
 
 class IndividualModel(BaseModel):
 
-    def __init__(self, parameter_config: dict, parameter_overwrite={}):
+    def __init__(
+        self, parameter_config: Dict[float, Any], parameter_overwrite={}
+    ):
         super().__init__(parameter_config, parameter_overwrite)
         self.initialization = self.model.get_weights()
 
@@ -85,7 +87,9 @@ class IndividualModel(BaseModel):
 
         return score
 
-    def individual_evaluate(self, user_day_data: Any, plotAUC=False)->dict:
+    def individual_evaluate(
+        self, user_day_data: Any, plotAUC=False
+    )->Dict[float, str]:
 
         # check if unique.users exists and only proceed if so
         try:
@@ -107,7 +111,7 @@ class IndividualModel(BaseModel):
                 X=ind_X, y=ind_y, user_day_pairs=[(user, -1)] * len(ind_y)
             )
             metrics = self.evaluate(ind_user_day_data)
-            metrics_dict[user] = metrics
+            metrics_dict[int(user)] = metrics
 
         return metrics_dict
 
