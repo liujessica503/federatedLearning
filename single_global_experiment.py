@@ -23,7 +23,7 @@ import csv
 from split_train_test_global import split_train_test_global
 from GlobalModel import GlobalModel
 from UserDayData import UserDayData
-from typing import Dict
+from typing import Any, Dict
 from BaseModel import BaseModel
 
 import datetime
@@ -40,7 +40,7 @@ def run_single_experiment(
     return metrics
 
 
-def write_to_csv(results, output_path)->None:
+def write_to_csv(results, output_path: str)->None:
     csv_columns = list(results.keys())
     with open(output_path + ".csv", 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_columns)
@@ -50,13 +50,13 @@ def write_to_csv(results, output_path)->None:
     print('results written to :' + output_path + ".csv")
 
 
-def write_to_json(results, output_path)->None:
+def write_to_json(results, output_path: str)->None:
     with open(output_path + ".json", "w") as f:
         json.dump(results, f, indent=4)
     print('results written to :' + output_path + ".json")
 
 
-def simple_train_test_split(parameter_dict):
+def simple_train_test_split(parameter_dict: Dict[Any])->UserDayData:
     (
         train_covariates,
         train_labels,
