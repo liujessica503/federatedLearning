@@ -6,20 +6,12 @@ import sys
 from split_train_test_global import split_train_test_global
 from IndividualModel import IndividualModel
 from UserDayData import UserDayData
-from typing import Dict
 
 from single_global_experiment import (
     run_single_experiment,
     write_to_csv,
     write_to_json,
 )
-
-
-def get_individual_experiment_results(
-    trained_model, test_data
-)->Dict[float, str]:
-    ind_results = trained_model.individual_evaluate(test_data)
-    return ind_results
 
 
 def main():
@@ -50,7 +42,7 @@ def main():
     model = IndividualModel(parameter_config=parameter_dict)
 
     results = run_single_experiment(model, train_data, test_data, plotAUC=True)
-    ind_results = get_individual_experiment_results(model, test_data)
+    ind_results = model.individual_evaluate(test_data)
 
     write_to_csv(results, parameter_dict["output_path"])
     write_to_json(results, parameter_dict["output_path"])
