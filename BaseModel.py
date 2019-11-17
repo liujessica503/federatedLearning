@@ -13,6 +13,8 @@ from sklearn.metrics import (
     cohen_kappa_score
 )
 
+# TODO: Add seed setting
+
 
 class BaseModel(ABC):
 

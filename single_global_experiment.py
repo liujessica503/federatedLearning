@@ -1,17 +1,7 @@
-'''Runs the following files:
-init.json (take in parameters and then run:)
-split_train_test.py (calls get_binary_mood.py)
-globalmodel.py (calls plot_auc.py)
-
-Maintenance:
-10/01/2019 Created
-
+'''
 To-do: in split_train_test, need to add a function for split_train_valid_test
 Need to check if we have enough test / valid data before splitting.
 '''
-
-
-# take in cv
 
 # later add graphics from analyzing results
 
