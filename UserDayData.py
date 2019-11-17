@@ -35,6 +35,14 @@ class UserDayData:
         rows = self._get_rows_for_users(users)
         return self.X.iloc[rows, :], self.y[rows]
 
+    def get_subset_for_users(self, users: List[int])->Any:
+        rows = self._get_rows_for_users(users)
+        return UserDayData(
+            X=self.X.iloc[rows, :],
+            y=self.y[rows],
+            user_day_pairs=[self.user_day_pairs[i] for i in rows]
+        )
+
     # get by days
 
     def _get_rows_for_days(self, days: List[int])->List[int]:
@@ -48,6 +56,14 @@ class UserDayData:
     def get_data_for_days(self, days: List[int])->Any:
         rows = self._get_rows_for_days(days)
         return self.X.iloc[rows, :], self.y[rows]
+
+    def get_subset_for_days(self, days: List[int])->Any:
+        rows = self._get_rows_for_days(days)
+        return UserDayData(
+            X=self.X.iloc[rows, :],
+            y=self.y[rows],
+            user_day_pairs=[self.user_day_pairs[i] for i in rows]
+        )
 
     # get by users and days
 
@@ -71,3 +87,13 @@ class UserDayData:
 
         rows = self._get_rows_for_users_on_days(users, days)
         return self.X.iloc[rows, :], self.y[rows]
+
+    def get_subset_for_users_on_days(
+        self, users: List[int], days: List[int]
+    )->Any:
+        rows = self._get_rows_for_users_on_days(users, days)
+        return UserDayData(
+            X=self.X.iloc[rows, :],
+            y=self.y[rows],
+            user_day_pairs=[self.user_day_pairs[i] for i in rows]
+        )
