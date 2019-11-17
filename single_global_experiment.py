@@ -56,12 +56,7 @@ def write_to_json(results, output_path)->None:
     print('results written to :' + output_path + ".json")
 
 
-def main():
-    start = datetime.datetime.now()
-
-    with open(sys.argv[1]) as file:
-        parameter_dict = json.load(file)
-
+def simple_train_test_split(parameter_dict):
     (
         train_covariates,
         train_labels,
@@ -80,6 +75,17 @@ def main():
     test_data = UserDayData(
         X=test_covariates, y=test_labels, user_day_pairs=test_user_day_pairs
     )
+
+    return train_data, test_data
+
+
+def main():
+    start = datetime.datetime.now()
+
+    with open(sys.argv[1]) as file:
+        parameter_dict = json.load(file)
+
+    train_data, test_data = simple_train_test_split(parameter_dict)
 
     model = GlobalModel(parameter_config=parameter_dict)
 
