@@ -85,7 +85,7 @@ class BaseModel(ABC):
         # both 1 and 0 have to be true labels in test set to calculate AUC
         if 1 in test_labels and 0 in test_labels:
             # false and true positive rates and thresholds
-            fpr, tpr, thresholds = roc_curve(test_labels, binary_prediction)
+            fpr, tpr, thresholds = roc_curve(test_labels, predictions)
             auc_value = auc(fpr, tpr)
             if plotAUC is True:
                 plot_auc(fpr, tpr, auc_value, filename=self.auc_output_path)
