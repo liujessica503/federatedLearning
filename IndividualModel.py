@@ -8,7 +8,7 @@ from UserDayData import UserDayData
 
 class IndividualModel(BaseModel):
 
-    def train(self, user_day_data: Any, validation_data=None)->None:
+    def train(self, user_day_data: Any)->None:
         self.unique_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
         )
@@ -30,7 +30,6 @@ class IndividualModel(BaseModel):
                 epochs=self.epochs,
                 batch_size=self.batch_size,
                 verbose=self.verbose,
-                validation_data=validation_data
             )
 
             self.model_weights_dict[user] = self.model.get_weights()
