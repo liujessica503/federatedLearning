@@ -46,7 +46,7 @@ def write_to_json(results, output_path: str)->None:
     print('results written to :' + output_path + ".json")
 
 
-def simple_train_test_split(parameter_dict: Dict[Any])->UserDayData:
+def simple_train_test_split(parameter_dict: Dict[str, Any])->UserDayData:
     (
         train_covariates,
         train_labels,

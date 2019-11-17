@@ -8,12 +8,6 @@ from UserDayData import UserDayData
 
 class IndividualModel(BaseModel):
 
-    def __init__(
-        self, parameter_config: Dict[float, Any], parameter_overwrite={}
-    ):
-        super().__init__(parameter_config, parameter_overwrite)
-        self.initialization = self.model.get_weights()
-
     def train(self, user_day_data: Any, validation_data=None)->None:
         self.unique_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
@@ -114,6 +108,3 @@ class IndividualModel(BaseModel):
             metrics_dict[int(user)] = metrics
 
         return metrics_dict
-
-    def reset(self)->None:
-        pass

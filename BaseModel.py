@@ -19,7 +19,7 @@ from sklearn.metrics import (
 class BaseModel(ABC):
 
     def __init__(
-        self, parameter_config: Dict[float, str], parameter_overwrite={}
+        self, parameter_config: Dict[str, float], parameter_overwrite={}
     ):
 
         for k, v in parameter_overwrite.items():
@@ -60,6 +60,7 @@ class BaseModel(ABC):
             ),
             metrics=['accuracy'],
         )
+        self.initialization = self.model.get_weights()
 
     @abstractmethod
     def train(self, user_day_data: Any) -> None:
@@ -75,7 +76,7 @@ class BaseModel(ABC):
 
     def evaluate(
         self, test_user_day_data: Any, plotAUC=False
-    )-> dict:
+    )-> Dict[str, float]:
 
         predictions = self.predict(test_user_day_data)
         test_labels = test_user_day_data.get_y()
@@ -119,6 +120,5 @@ class BaseModel(ABC):
         }
         return metrics
 
-    @abstractmethod
     def reset(self)->None:
-        raise NotImplementedError
+        self.model.set_weights(self.initialization)
