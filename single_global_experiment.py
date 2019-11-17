@@ -30,17 +30,29 @@ start = datetime.datetime.now()
 with open(sys.argv[1]) as file:
         parameter_dict = json.load(file)
 
-train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
-    directory = parameter_dict['input_directory'], 
-    cv = parameter_dict['cv'])
+(
+    train_covariates,
+    train_labels,
+    train_user_day_pairs,
+    test_covariates,
+    test_labels,
+    test_user_day_pairs
+) = split_train_test_global(
+    directory=parameter_dict['input_directory'],
+    cv=parameter_dict['cv']
+)
 
-train_data = UserDayData(train_covariates, train_labels, train_user_day_pairs)
-test_data = UserDayData(test_covariates, test_labels, test_user_day_pairs)
+train_data = UserDayData(
+    X=train_covariates, y=train_labels, user_day_pairs=train_user_day_pairs
+)
+test_data = UserDayData(
+    X=test_covariates, y=test_labels, user_day_pairs=test_user_day_pairs
+)
 
-global_model = GlobalModel(parameter_config = parameter_dict)
+global_model = GlobalModel(parameter_config=parameter_dict)
 global_model.train(train_data)
 predictions = global_model.predict(test_data)
-metrics = global_model.evaluate(user_model = global_model, test_covariates = test_data.X, test_labels = test_data.y, predictions = predictions, plotAUC = True, globalModel = True)
+metrics = global_model.evaluate(test_data, plotAUC=True)
 print(metrics)
 
 # write metrics to csv

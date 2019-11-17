@@ -4,7 +4,7 @@ This script does regular 3-fold cross-validation within the first 71*(cv) days
 of each individual's data, where cv is set by init.json.
 We will use the subsequent 71 days as the test set.
 
-Outputs an unordered dictionary where the key is the individual user 
+Outputs an unordered dictionary where the key is the individual user
 and the value is a list of length k of loss on k validation sets
 
 Runs the following files:
@@ -12,7 +12,8 @@ init.json (take in parameters and then run:)
 split_train_test_individual.py
 IndividualModel.py (calls get_binary_mood.py)
 
-# commented out code to preserve ordering while spliting our data into chunks and evaluating on each chunk
+# commented out code to preserve ordering while spliting our data
+# into chunks and evaluating on each chunk
 
 Maintenance:
 10/22/19 Created
@@ -24,11 +25,7 @@ Maintenance:
 
 import json
 import sys
-import pandas as pd
 import numpy as np
-import glob
-import os
-import copy
 import csv
 import pickle
 # standardize the data
@@ -39,13 +36,12 @@ from split_train_test_global import split_train_test_global
 from UserDayData import UserDayData
 import keras
 from keras import optimizers
-from keras.optimizers import SGD, RMSprop, Adam
 # to clear model after use
-from keras import backend as K 
+from keras import backend as K
 
 k = 3
 # split our 142 days of training data into k partitions
-num_val_samples = (71*2) // k
+num_val_samples = (71 * 2) // k
 
 # dictionary of dictionaries. Key is user and value is user_loss_by_lr
 user_loss = {}
@@ -61,11 +57,19 @@ verbose = parameter_dict['verbose']
 # write cv results as we process each one
 output_path = parameter_dict['output_path']
 # output python dictionary so that we can read it in easily
-cv_dict_file = parameter_dict['cv_dict_file'] 
+cv_dict_file = parameter_dict['cv_dict_file']
 
-train_covariates, train_labels, train_user_day_pairs, test_covariates, test_labels, test_user_day_pairs = split_train_test_global(
-    directory = parameter_dict['input_directory'], 
-    cv = parameter_dict['cv'])
+(
+    train_covariates,
+    train_labels,
+    train_user_day_pairs,
+    test_covariates,
+    test_labels,
+    test_user_day_pairs
+) = split_train_test_global(
+    directory=parameter_dict['input_directory'],
+    cv=parameter_dict['cv']
+)
 
 train_data = UserDayData(train_covariates, train_labels, train_user_day_pairs)
 test_data = UserDayData(test_covariates, test_labels, test_user_day_pairs)
@@ -79,17 +83,16 @@ for user in user_list:
     user_loss_by_lr = {}
 
     for curr_lr in np.arange(0.15, 0.25, 0.01):
-        # instantiate model with parameters from json file 
+        # instantiate model with parameters from json file
         # AND custom learn rate
         model = IndividualModel(
-            parameter_config = parameter_dict,
-            parameter_overwrite = {"lr": curr_lr}
+            parameter_config=parameter_dict,
+            parameter_overwrite={"lr": curr_lr}
         )
         # similar to IndividualModel train method
-        #user_model = copy.deepcopy(model.template_model)
+        # user_model = copy.deepcopy(model.template_model)
         # deep copy-ing model doesn't work in flux
         # so we clone, load weights, and compile instead
-        
         user_model = keras.models.clone_model(model.template_model)
         user_model.set_weights(model.template_model.get_weights())
         user_model.compile(loss=parameter_dict['loss'],

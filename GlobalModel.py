@@ -35,5 +35,9 @@ class GlobalModel(BaseModel):
         X_test = self.scaler.transform(user_day_data.get_X())
         return self.model.predict(X_test).ravel()
 
+    def get_score(self, user_day_data: Any)->str:
+        X_test = self.scaler.transform(user_day_data.get_X())
+        return self.model.evaluate(X_test, user_day_data.get_y())
+
     def reset(self)->None:
         pass

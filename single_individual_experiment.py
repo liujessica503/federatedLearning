@@ -48,17 +48,20 @@ counter = 0
     cv=parameter_dict['cv'],
 )
 
-train_data = UserDayData(train_covariates, train_labels, train_user_day_pairs)
-test_data = UserDayData(test_covariates, test_labels, test_user_day_pairs)
+train_data = UserDayData(
+    X=train_covariates, y=train_labels, user_day_pairs=train_user_day_pairs
+)
+test_data = UserDayData(
+    X=test_covariates, y=test_labels, user_day_pairs=test_user_day_pairs
+)
 individual_model = IndividualModel(parameter_config=parameter_dict)
 # the train method iterates over each individual and
 # trains a model for each individual
 individual_model.train(train_data)
 # individual_model.model_dict to see trained models
-predictions_dict = individual_model.predict(test_data)
-metrics_dict = individual_model.individual_evaluate(
-    test_data, predictions_dict=predictions_dict, plotAUC=False
-)
+predictions = individual_model.predict(test_data)
+metrics_dict = individual_model.individual_evaluate(test_data, plotAUC=False)
+import pdb; pdb.set_trace()
 
 # write metrics to csv
 
