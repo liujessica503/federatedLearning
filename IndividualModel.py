@@ -13,7 +13,7 @@ class IndividualModel(BaseModel):
 
     def train(self, user_day_data: Any, validation_data=None)->None:
         self.unique_users = np.unique(
-            [x[0] for x in user_day_data.user_day_pairs]
+            [x[0] for x in user_day_data.get_user_day_pairs()]
         )
         self.model_weights_dict = {}
         self.scalers_dict = {}

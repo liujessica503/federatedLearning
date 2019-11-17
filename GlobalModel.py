@@ -7,10 +7,10 @@ from sklearn.preprocessing import StandardScaler
 class GlobalModel(BaseModel):
 
     def train(self, user_day_data: Any)->None:
-        self.scaler = StandardScaler().fit(user_day_data.X)
+        self.scaler = StandardScaler().fit(user_day_data.get_X())
         # Scale the train set
-        X_train = self.scaler.transform(user_day_data.X)
-        Y_train = user_day_data.y
+        X_train = self.scaler.transform(user_day_data.get_X())
+        Y_train = user_day_data.get_y()
         self.model.fit(
             X_train,
             Y_train,
@@ -31,8 +31,8 @@ class GlobalModel(BaseModel):
         # return an object for running cross-validation purposes
         return modelFit
 
-    def predict(self, user_day_data: Any)->List[int]:
-        X_test = self.scaler.transform(user_day_data.X)
+    def predict(self, user_day_data: Any)->List[float]:
+        X_test = self.scaler.transform(user_day_data.get_X())
         return self.model.predict(X_test).ravel()
 
     def reset(self)->None:
