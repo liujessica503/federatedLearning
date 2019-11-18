@@ -33,16 +33,10 @@ class IndividualModel(BaseModel):
 
             self.model_weights_dict[user] = self.model.get_weights()
             self.scalers_dict[user] = user_scaler
+        self.is_trained = True
 
     def predict(self, user_day_data: Any)->List[float]:
-
-        # check if unique.users exista and only proceed if so
-        try:
-            self.unique_users
-        except NameError:
-            self.unique_users = None
-            print('Please run the train method and create unique_users')
-            return None
+        self.check_is_trained()
 
         predictions = np.empty(len(user_day_data.get_y()))
         pred_users = np.unique(
@@ -59,12 +53,7 @@ class IndividualModel(BaseModel):
         return predictions
 
     def get_score(self, user_day_data: Any)->str:
-        try:
-            self.unique_users
-        except NameError:
-            self.unique_users = None
-            print('Please run the train method and create unique_users')
-            return None
+        self.check_is_trained()
 
         eval_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
@@ -82,14 +71,7 @@ class IndividualModel(BaseModel):
     def individual_evaluate(
         self, user_day_data: Any, plotAUC=False
     )->Dict[float, str]:
-
-        # check if unique.users exists and only proceed if so
-        try:
-            self.unique_users
-        except NameError:
-            self.unique_users = None
-            print('Please run the train method and create unique_users')
-            return None
+        self.check_is_trained()
 
         eval_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]

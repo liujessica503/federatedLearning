@@ -61,6 +61,7 @@ class BaseModel(ABC):
             metrics=['accuracy'],
         )
         self.initialization = self.model.get_weights()
+        self.is_trained = False
 
     @abstractmethod
     def train(self, user_day_data: Any) -> None:
@@ -122,3 +123,8 @@ class BaseModel(ABC):
 
     def reset(self)->None:
         self.model.set_weights(self.initialization)
+        self.is_trained = False
+
+    def check_is_trained(self)->None:
+        if not self.is_trained:
+            raise RuntimeError("Model not yet trained")

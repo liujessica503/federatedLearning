@@ -18,6 +18,7 @@ class GlobalModel(BaseModel):
             batch_size=self.batch_size,
             verbose=self.verbose
         )
+        self.is_trained = True
 
     def validate(self, X: Any, Y: Any, validation_data=None)->None:
         modelFit = self.model.fit(
@@ -32,9 +33,11 @@ class GlobalModel(BaseModel):
         return modelFit
 
     def predict(self, user_day_data: Any)->List[float]:
+        self.check_is_trained()
         X_test = self.scaler.transform(user_day_data.get_X())
         return self.model.predict(X_test).ravel()
 
     def get_score(self, user_day_data: Any)->str:
+        self.check_is_trained()
         X_test = self.scaler.transform(user_day_data.get_X())
         return self.model.evaluate(X_test, user_day_data.get_y())
