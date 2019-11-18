@@ -11,5 +11,10 @@
 	"epochs": 2,
 	"verbose": 1,
 	"plot_auc": 1,
-	"auc_output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/test_plot_auc.png"
+	"auc_output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/test_plot_auc.png",
+	"clients_per_round": 50,
+	"local_epochs_per_round": 2,
+	"deployment_location": "server",
+	"global_aggregator": "fed_avg",
+	"fed_stepsize": 0.1
 }
