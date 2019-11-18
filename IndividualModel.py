@@ -3,7 +3,6 @@ import numpy as np
 from typing import Any, List, Dict
 # standardize the data
 from sklearn.preprocessing import StandardScaler
-from UserDayData import UserDayData
 
 
 class IndividualModel(BaseModel):
