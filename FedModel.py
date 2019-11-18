@@ -21,6 +21,10 @@ class FedModel(BaseModel):
         self.deployment_location = parameter_config[
             "deployment_location"
         ]
+        self.global_aggregator = parameter_config[
+            "global_aggregator"
+        ]
+        self.fed_stepsize = parameter_config["fed_stepsize"]
 
     def train(self, user_day_data: Any) -> None:
         self.unique_users = np.unique(
@@ -32,9 +36,13 @@ class FedModel(BaseModel):
             self.scalers_dict[user] = StandardScaler().fit(X_train)
 
         self.full_model_weights = self.initialization
+        moment_1 = [np.zeros(np.shape(x)) for x in self.full_model_weights]
+        moment_2 = [np.zeros(np.shape(x)) for x in self.full_model_weights]
+
         rounds_per_epoch = int(len(self.unique_users) / self.clients_per_round)
         client_weights = [0] * self.clients_per_round
         client_num_training_points = [0] * self.clients_per_round
+        counter = 0
         for _ in range(self.epochs):
             for __ in range(rounds_per_epoch):
                 clients = np.random.choice(
@@ -59,19 +67,25 @@ class FedModel(BaseModel):
                     client_weights[i] = self.model.get_weights()
                     client_num_training_points[i] = len(Y_train)
 
-                num_training_points = sum(client_num_training_points)
-                for i in range(self.clients_per_round):
-                    for j in range(len(client_weights[0])):
-                        client_weights[i][j] = client_weights[i][
-                            j
-                        ] * client_num_training_points[i] / num_training_points
-
-                new_weights = []
-                for j in range(len(client_weights[0])):
-                    tmp = client_weights[0][j]
-                    for i in range(1, self.clients_per_round):
-                        tmp = tmp + client_weights[i][j]
-                    new_weights.append(tmp)
+                if self.global_aggregator == GlobalAggregatorEnum.FEDAVG.value:
+                    new_weights = self._fed_avg(
+                        client_weights, client_num_training_points
+                    )
+                elif self.global_aggregator == GlobalAggregatorEnum.ADAM.value:
+                    counter += 1
+                    new_weights, moment_1, moment_2 = self._fed_adam(
+                        client_weights=client_weights,
+                        client_num_training_points=client_num_training_points,
+                        old_weights=self.full_model_weights,
+                        moment_1=moment_1,
+                        moment_2=moment_2,
+                        fed_stepsize=self.fed_stepsize,
+                        beta_1=0.9,
+                        beta_2=0.999,
+                        t=counter,
+                    )
+                else:
+                    raise RuntimeError("global_aggregator not valid")
                 self.full_model_weights = new_weights
 
         self.model.set_weights(self.full_model_weights)
@@ -154,7 +168,78 @@ class FedModel(BaseModel):
         X_test = scaler.transform(user_day_data.get_X())
         return self.model.evaluate(X_test, user_day_data.get_y())
 
+    @staticmethod
+    def _fed_avg(
+        client_weights: List[List[Any]],
+        client_num_training_points: List[int],
+    )->List[Any]:
+        num_training_points = sum(client_num_training_points)
+        for i in range(len(client_weights)):
+            for j in range(len(client_weights[0])):
+                client_weights[i][j] = client_weights[i][
+                    j
+                ] * client_num_training_points[i] / num_training_points
+
+        new_weights = []
+        for j in range(len(client_weights[0])):
+            tmp = client_weights[0][j]
+            for i in range(1, len(client_weights)):
+                tmp = tmp + client_weights[i][j]
+            new_weights.append(tmp)
+
+        return new_weights
+
+    @staticmethod
+    def _fed_adam(
+        client_weights: List[List[Any]],
+        client_num_training_points: List[int],
+        old_weights: List[Any],
+        moment_1: List[Any],
+        moment_2: List[Any],
+        fed_stepsize: float,
+        beta_1: float,
+        beta_2: float,
+        t: int,
+    )->List[Any]:
+        n_vec = len(old_weights)
+        avg_weights = FedModel._fed_avg(
+            client_weights, client_num_training_points
+        )
+        update_vector = [
+            old_weights[i] - avg_weights[i] for i in range(n_vec)
+        ]
+        moment_1 = [
+            beta_1 * moment_1[i] +
+            (1 - beta_1) * update_vector[i] for i in range(n_vec)
+        ]
+        moment_2 = [
+            beta_2 * moment_2[i] +
+            (1 - beta_2) *
+            (update_vector[i] * update_vector[i]) for i in range(n_vec)
+        ]
+        # bc = bias corrected
+        bc_moment_1 = [
+            vec / (1 - beta_1**t) for vec in moment_1
+        ]
+        bc_moment_2 = [
+            vec / (1 - beta_2**t) for vec in moment_2
+        ]
+        sqrt_bc_moment_2 = [
+            np.sqrt(vec) + 1e-8 for vec in bc_moment_2
+        ]
+        new_weights = [
+            old_weights[i] - fed_stepsize *
+            (bc_moment_1[i] / sqrt_bc_moment_2[i]) for i in range(n_vec)
+        ]
+
+        return new_weights, moment_1, moment_2
+
 
 class DeploymentLocationsEnum(Enum):
     CLIENT = "client"
     SERVER = "server"
+
+
+class GlobalAggregatorEnum(Enum):
+    FEDAVG = "fed_avg"
+    ADAM = "adam"
