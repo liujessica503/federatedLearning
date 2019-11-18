@@ -99,10 +99,7 @@ class IndividualModel(BaseModel):
 
         for user in eval_users:
             # TODO: Fix risky fake user_day list
-            ind_X, ind_y = user_day_data.get_data_for_users([user])
-            ind_user_day_data = UserDayData(
-                X=ind_X, y=ind_y, user_day_pairs=[(user, -1)] * len(ind_y)
-            )
+            ind_user_day_data = user_day_data.get_subset_for_users([user])
             metrics = self.evaluate(ind_user_day_data)
             metrics_dict[int(user)] = metrics
 
