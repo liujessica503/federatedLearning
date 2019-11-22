@@ -4,6 +4,8 @@ import sys
 
 # import user-defined functions
 from IndividualModel import IndividualModel
+from GlobalModel import GlobalModel
+from FedModel import FedModel
 
 from run_single_experiment import (
     run_single_experiment,
