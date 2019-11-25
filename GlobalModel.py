@@ -20,18 +20,6 @@ class GlobalModel(BaseModel):
         )
         self.is_trained = True
 
-    def validate(self, X: Any, Y: Any, validation_data=None)->None:
-        modelFit = self.model.fit(
-            X,
-            Y,
-            epochs=self.epochs,
-            batch_size=self.batch_size,
-            verbose=self.verbose,
-            validation_data=validation_data
-        )
-        # return an object for running cross-validation purposes
-        return modelFit
-
     def predict(self, user_day_data: Any)->List[float]:
         self.check_is_trained()
         X_test = self.scaler.transform(user_day_data.get_X())

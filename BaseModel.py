@@ -1,3 +1,7 @@
+import tensorflow as tf
+import numpy as np
+import random
+
 from abc import ABC, abstractmethod
 from typing import Any, List, Dict
 from keras.models import Sequential
@@ -36,6 +40,11 @@ class BaseModel(ABC):
         self.output_path = parameter_config["output_path"]
         self.auc_output_path = parameter_config["auc_output_path"]
         self.plot_auc = parameter_config["plot_auc"]
+        self.seed = parameter_config["seed"] * 1234567
+        self.np_seed = self.seed * 2
+        np.random.seed(self.np_seed)
+        tf.random.set_random_seed(self.seed)
+        random.seed(self.seed)
 
         self.model = Sequential()
         self.model.add(
