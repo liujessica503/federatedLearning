@@ -30,21 +30,28 @@ def main():
         "global_model": GlobalModel,
         "fed_model": FedModel,
     }
-    
+
     if model_registry.get(parameter_dict.get('model_type')) is None:
-        raise KeyError('model_type in .json must be one of: "individual_model", "global_model", "fed_model"')
+        raise KeyError(
+            'model_type in .json must be one of: "individual_model",'
+            '"global_model", "fed_model"'
+        )
     else:
         model_class = model_registry[parameter_dict['model_type']]
 
-    if model_class == IndividualModel: 
+    if model_class == IndividualModel:
         model = IndividualModel(parameter_config=parameter_dict)
-        results = run_single_experiment(model, train_data, test_data, plotAUC=True)
+        results = run_single_experiment(
+            model, train_data, test_data, plotAUC=True
+        )
         ind_results = model.individual_evaluate(test_data)
         write_to_json(ind_results, parameter_dict["output_path"] + "ind")
 
     elif model_class == FedModel:
         model = FedModel(parameter_config=parameter_dict)
-        results = run_single_experiment(model, train_data, test_data, plotAUC=True)
+        results = run_single_experiment(
+            model, train_data, test_data, plotAUC=True
+        )
 
     elif model_class == GlobalModel:
         model = GlobalModel(parameter_config=parameter_dict)
