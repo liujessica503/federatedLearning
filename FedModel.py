@@ -14,17 +14,18 @@ class FedModel(BaseModel):
     ):
 
         super().__init__(parameter_config, parameter_overwrite)
-        self.clients_per_round = parameter_config["clients_per_round"]
-        self.local_epochs_per_round = parameter_config[
+        self.fed_model_parameters = parameter_config["fed_model_parameters"]
+        self.clients_per_round = self.fed_model_parameters["clients_per_round"]
+        self.local_epochs_per_round = self.fed_model_parameters[
             "local_epochs_per_round"
         ]
-        self.deployment_location = parameter_config[
+        self.deployment_location = self.fed_model_parameters[
             "deployment_location"
         ]
-        self.global_aggregator = parameter_config[
+        self.global_aggregator = self.fed_model_parameters[
             "global_aggregator"
         ]
-        self.fed_stepsize = parameter_config["fed_stepsize"]
+        self.fed_stepsize = self.fed_model_parameters["fed_stepsize"]
 
     def train(self, user_day_data: Any) -> None:
         self.unique_users = np.unique(
