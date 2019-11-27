@@ -41,21 +41,16 @@ def main():
 
     if model_class == IndividualModel:
         model = IndividualModel(parameter_config=parameter_dict)
-        results = run_single_experiment(
-            model, train_data, test_data, plotAUC=True
-        )
-        ind_results = model.individual_evaluate(test_data)
-        write_to_json(ind_results, parameter_dict["output_path"] + "ind")
-
     elif model_class == FedModel:
         model = FedModel(parameter_config=parameter_dict)
-        results = run_single_experiment(
-            model, train_data, test_data, plotAUC=True
-        )
-
     elif model_class == GlobalModel:
         model = GlobalModel(parameter_config=parameter_dict)
 
+    results = run_single_experiment(
+        model, train_data, test_data, plotAUC=True
+    )
+    ind_results = model.individual_evaluate(test_data)
+    write_to_json(ind_results, parameter_dict["output_path"] + "_by_user")
     write_to_csv(results, parameter_dict["output_path"])
     write_to_json(results, parameter_dict["output_path"])
 

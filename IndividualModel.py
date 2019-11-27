@@ -67,21 +67,3 @@ class IndividualModel(BaseModel):
             score = score + str(self.model.evaluate(X_test, Y_test)) + "\n"
 
         return score
-
-    def individual_evaluate(
-        self, user_day_data: Any, plotAUC=False
-    )->Dict[float, str]:
-        self.check_is_trained()
-
-        eval_users = np.unique(
-            [x[0] for x in user_day_data.get_user_day_pairs()]
-        )
-        metrics_dict = {}
-
-        for user in eval_users:
-            # TODO: Fix risky fake user_day list
-            ind_user_day_data = user_day_data.get_subset_for_users([user])
-            metrics = self.evaluate(ind_user_day_data)
-            metrics_dict[int(user)] = metrics
-
-        return metrics_dict
