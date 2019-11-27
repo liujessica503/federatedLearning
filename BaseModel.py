@@ -7,7 +7,6 @@ from typing import Any, List, Dict
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import optimizers
-from plot_auc import plot_auc
 from sklearn.metrics import (
     roc_curve,
     auc,
@@ -84,9 +83,7 @@ class BaseModel(ABC):
     def get_score(self, user_day_data)->str:
         raise NotImplementedError
 
-    def evaluate(
-        self, test_user_day_data: Any, plotAUC=False
-    )-> Dict[str, float]:
+    def evaluate(self, test_user_day_data: Any)-> Dict[str, float]:
 
         predictions = self.predict(test_user_day_data)
         test_labels = test_user_day_data.get_y()
@@ -98,11 +95,11 @@ class BaseModel(ABC):
             # false and true positive rates and thresholds
             fpr, tpr, thresholds = roc_curve(test_labels, predictions)
             auc_value = auc(fpr, tpr)
-            if plotAUC is True:
-                plot_auc(fpr, tpr, auc_value, filename=self.auc_output_path)
+            fpr = fpr.tolist()
+            tpr = tpr.tolist()
         else:
             # initialize since we're printing to the csv
-            fpr, tpr, auc_value = ["", "", ""]
+            fpr, tpr, auc_value = [[], [], None]
 
         # evaluate performance
         score = self.get_score(test_user_day_data)
@@ -119,8 +116,8 @@ class BaseModel(ABC):
 
         metrics = {
             "Number of Test Obs": test_labels.shape[0],
-            # "FPR": fpr,
-            # "TPR": tpr,
+            "FPR": fpr,
+            "TPR": tpr,
             "AUC": auc_value,
             'Score': score,
             'Precision': precision,
@@ -143,6 +140,8 @@ class BaseModel(ABC):
         for user in eval_users:
             ind_user_day_data = user_day_data.get_subset_for_users([user])
             metrics = self.evaluate(ind_user_day_data)
+            del metrics["FPR"]
+            del metrics["TPR"]
             metrics_dict[int(user)] = metrics
 
         return metrics_dict

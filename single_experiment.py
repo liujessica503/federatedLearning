@@ -25,9 +25,23 @@ def main():
     model = model_class(parameter_config=parameter_dict)
 
     results = ExperimentUtils.run_single_experiment(
-        model, train_data, test_data, plotAUC=True
+        model, train_data, test_data
     )
     ind_results = model.individual_evaluate(test_data)
+
+    if parameter_dict["plot_auc"]:
+
+        ExperimentUtils.plot_auc(
+            results["FPR"],
+            results["TPR"],
+            results["AUC"],
+            str(
+                parameter_dict["auc_output_path"] +
+                "(" + parameter_dict['model_type'] + ")"
+            )
+        )
+    del results["FPR"]
+    del results["TPR"]
     ExperimentUtils.write_to_json(
         ind_results, parameter_dict["output_path"] + "_by_user"
     )

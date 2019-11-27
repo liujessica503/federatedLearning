@@ -1,5 +1,6 @@
 import json
 import csv
+import matplotlib.pyplot as plt
 
 # import user-defined functions
 from split_train_test_global import split_train_test_global
@@ -25,10 +26,9 @@ class ExperimentUtils:
         model: BaseModel,
         train_data: UserDayData,
         test_data: UserDayData,
-        plotAUC=False
     )->Dict:
         model.train(train_data)
-        metrics = model.evaluate(test_data, plotAUC=plotAUC)
+        metrics = model.evaluate(test_data)
         return metrics
 
     @staticmethod
@@ -84,3 +84,14 @@ class ExperimentUtils:
                 'model_type in config json must be one of: "individual_model",'
                 '"global_model", "fed_model"'
             )
+
+    @staticmethod
+    def plot_auc(fpr, tpr, auc_value, filename):
+        plt.figure(1)
+        plt.plot([0, 1], [0, 1], 'k--')
+        plt.plot(fpr, tpr, label='Keras (area = {:.3f})'.format(auc_value))
+        plt.xlabel('False positive rate')
+        plt.ylabel('True positive rate')
+        plt.title('ROC curve')
+        plt.legend(loc='best')
+        plt.savefig(filename + ".pdf")
