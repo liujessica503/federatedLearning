@@ -5,7 +5,10 @@
 	"input_dim": 126,
 	"layers": [12, 8, 8],
 	"activation": "relu",
-	"loss": "binary_crossentropy",
+	"output_layer": {
+		"loss_type": "classification",
+		"classification_thresholds": [0.7]
+	},
 	"learn_rate": 0.001,
 	"batch_size": 40,
 	"epochs": 2,
