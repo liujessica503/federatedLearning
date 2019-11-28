@@ -7,6 +7,7 @@ from typing import Any, List, Dict
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import optimizers
+from OutputLayer import OutputLayer
 from sklearn.metrics import (
     roc_curve,
     auc,
@@ -31,14 +32,11 @@ class BaseModel(ABC):
         self.layers = parameter_config["layers"]
         self.input_dim = parameter_config["input_dim"]
         self.activation = parameter_config["activation"]
-        self.loss = parameter_config["loss"]
         self.lr = parameter_config["learn_rate"]
         self.epochs = parameter_config["epochs"]
         self.batch_size = parameter_config["batch_size"]
         self.verbose = parameter_config["verbose"]
         self.output_path = parameter_config["output_path"]
-        self.auc_output_path = parameter_config["auc_output_path"]
-        self.plot_auc = parameter_config["plot_auc"]
         self.seed = parameter_config["seed"] * 1234567
         self.np_seed = self.seed * 2
         np.random.seed(self.np_seed)
@@ -46,6 +44,9 @@ class BaseModel(ABC):
         random.seed(self.seed)
 
         self.model = Sequential()
+        output_layer = OutputLayer.from_config(
+            parameter_config["output_layer"]
+        )
         self.model.add(
             Dense(
                 self.layers[0],
@@ -55,9 +56,9 @@ class BaseModel(ABC):
         )
         for i in range(1, len(self.layers)):
             self.model.add(Dense(self.layers[i], activation=self.activation))
-        self.model.add(Dense(1, activation='sigmoid'))
+        self.model.add(output_layer.layer)
         self.model.compile(
-            loss=self.loss,
+            loss=output_layer.loss,
             optimizer=optimizers.Adam(
                 lr=self.lr,
                 beta_1=0.9,
