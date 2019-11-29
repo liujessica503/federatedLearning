@@ -1,4 +1,5 @@
-'''split data into training and test data based on which cross-validation block we're using
+'''split data into training and test data based on which cross-validation block
+we're using
 Maintenance:
 10/01/19 Created
 '''
@@ -7,9 +8,9 @@ import pandas as pd
 import numpy as np
 import glob
 import os
-from collections import OrderedDict
 # import user-defined function
 from get_mood_class import get_mood_class
+
 
 def split_train_test_global(directory, cv, prediction_classes):
     train_data_dict = {}
@@ -24,23 +25,24 @@ def split_train_test_global(directory, cv, prediction_classes):
     for f in files_in_folder:
         userID = f[-15:-9]
 
-        train_data_dict[f] = pd.read_csv(f).iloc[0:71*cv,:]
-        train_days = pd.read_csv(f).iloc[0:71*cv,0]
+        train_data_dict[f] = pd.read_csv(f).iloc[0:71 * cv, :]
+        train_days = pd.read_csv(f).iloc[0:71 * cv, 0]
         train_pairs_dict[f] = [(int(userID), int(x[:4])) for x in train_days]
 
-        test_data_dict[f] = pd.read_csv(f).iloc[71*cv:,:]
-        test_days = pd.read_csv(f).iloc[71*cv:,0]
+        test_data_dict[f] = pd.read_csv(f).iloc[71 * cv:, :]
+        test_days = pd.read_csv(f).iloc[71 * cv:, 0]
         test_pairs_dict[f] = [(int(userID), int(x[:4])) for x in test_days]
 
     train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
     train_pairs = [train_pairs_dict[f] for f in files_in_folder]
-    train_user_day_pairs = [item for sublist in train_pairs for item in sublist]
+    train_user_day_pairs = [
+        item for sublist in train_pairs for item in sublist
+    ]
 
-    test_data  = pd.concat(test_data_dict[f] for f in files_in_folder)
+    test_data = pd.concat(test_data_dict[f] for f in files_in_folder)
     test_pairs = [test_pairs_dict[f] for f in files_in_folder]
     test_user_day_pairs = [item for sublist in test_pairs for item in sublist]
 
-    # convert mood variable and mood lags from ordinal measure to binary measure
     train_data = get_mood_class(train_data, prediction_classes)
     test_data = get_mood_class(test_data, prediction_classes)
 
@@ -49,12 +51,11 @@ def split_train_test_global(directory, cv, prediction_classes):
     test_covariates = test_data.drop('mood', axis=1)
     test_labels = np.ravel(test_data.mood)
 
-
     return (
-        train_covariates, 
-        train_labels, 
-        train_user_day_pairs, 
-        test_covariates, 
-        test_labels, 
-        test_user_day_pairs
+        train_covariates,
+        train_labels,
+        train_user_day_pairs,
+        test_covariates,
+        test_labels,
+        test_user_day_pairs,
     )
