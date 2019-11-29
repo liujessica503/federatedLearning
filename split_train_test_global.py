@@ -9,9 +9,9 @@ import glob
 import os
 from collections import OrderedDict
 # import user-defined function
-from get_binary_mood import get_binary_mood
+from get_mood_class import get_mood_class
 
-def split_train_test_global(directory, cv):
+def split_train_test_global(directory, cv, prediction_classes):
     train_data_dict = {}
     train_pairs_dict = {}
 
@@ -41,8 +41,8 @@ def split_train_test_global(directory, cv):
     test_user_day_pairs = [item for sublist in test_pairs for item in sublist]
 
     # convert mood variable and mood lags from ordinal measure to binary measure
-    train_data = get_binary_mood(train_data)
-    test_data = get_binary_mood(test_data)
+    train_data = get_mood_class(train_data, prediction_classes)
+    test_data = get_mood_class(test_data, prediction_classes)
 
     train_covariates = train_data.drop('mood', axis=1)
     train_labels = np.ravel(train_data.mood)

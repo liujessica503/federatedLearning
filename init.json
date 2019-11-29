@@ -1,6 +1,9 @@
 {
-	"input_directory": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2/cv2_split5",
-	"output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/results_binary_global.csv",
+	"model_type": "global_model",
+	"seed": 123,
+	"input_directory": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2/test_subset",
+	"output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/test.csv",
+	"prediction_classes": [4,6],
 	"cv": 2,
 	"input_dim": 126,
 	"layers": [12, 8, 8],
@@ -14,7 +17,7 @@
 	"epochs": 2,
 	"verbose": 1,
 	"plot_auc": 1,
-	"auc_output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/test_plot_auc.png",
+	"auc_output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/test.png",
 	"fed_model_parameters": {
 		"clients_per_round": 50,
 		"local_epochs_per_round": 2,

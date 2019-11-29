@@ -10,7 +10,7 @@ and the value is a list of length k of loss on k validation sets
 Runs the following files:
 init.json (take in parameters and then run:)
 split_train_test_individual.py
-IndividualModel.py (calls get_binary_mood.py)
+IndividualModel.py (calls get_mood_class.py)
 
 # commented out code to preserve ordering while spliting our data
 # into chunks and evaluating on each chunk
