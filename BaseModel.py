@@ -44,7 +44,7 @@ class BaseModel(ABC):
         random.seed(self.seed)
 
         self.model = Sequential()
-        output_layer = OutputLayer.from_config(
+        self.output_layer = OutputLayer.from_config(
             parameter_config["output_layer"]
         )
         self.model.add(
@@ -56,9 +56,9 @@ class BaseModel(ABC):
         )
         for i in range(1, len(self.layers)):
             self.model.add(Dense(self.layers[i], activation=self.activation))
-        self.model.add(output_layer.layer)
+        self.model.add(self.output_layer.layer)
         self.model.compile(
-            loss=output_layer.loss,
+            loss=self.output_layer.loss,
             optimizer=optimizers.Adam(
                 lr=self.lr,
                 beta_1=0.9,
@@ -67,7 +67,7 @@ class BaseModel(ABC):
                 decay=0.0,
                 amsgrad=False,
             ),
-            metrics=['accuracy'],
+            metrics=self.output_layer.metrics,
         )
         self.initialization = self.model.get_weights()
         self.is_trained = False

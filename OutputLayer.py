@@ -26,6 +26,7 @@ class BinaryLayer(OutputLayer):
     def __init__(self, output_layer_dict):
         self.layer = Dense(1, activation='sigmoid')
         self.loss = "binary_crossentropy"
+        self.metrics = ['accuracy']
 
 
 class MultiClassLayer(OutputLayer):
@@ -38,6 +39,7 @@ class MultiClassLayer(OutputLayer):
             activation='sigmoid',
         )
         self.loss = "categorical_crossentropy"
+        self.metrics = ['accuracy']
 
 
 class RegressionLayer(OutputLayer):
@@ -47,3 +49,4 @@ class RegressionLayer(OutputLayer):
     def __init__(self, output_layer_dict):
         self.layer = Dense(1)
         self.loss = "mean_squared_error"
+        self.metrics = ["mae", "mse"]
