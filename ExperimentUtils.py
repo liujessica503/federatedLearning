@@ -58,7 +58,10 @@ class ExperimentUtils:
             test_user_day_pairs
         ) = split_train_test_global(
             directory=parameter_dict['input_directory'],
-            cv=parameter_dict['cv']
+            cv=parameter_dict['cv'],
+            prediction_classes=parameter_dict[
+                "output_layer"
+            ]["classification_thresholds"]
         )
 
         train_data = UserDayData(

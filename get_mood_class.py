@@ -21,7 +21,7 @@ def get_mood_class(data, prediction_classes):
             "mood.4": "mood_4",
             "mood.5": "mood_5",
             "mood.6": "mood_6",
-            "mood.7": "mood_7"
+            "mood.7": "mood_7",
         }
     )
 
