@@ -14,7 +14,8 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
     f1_score,
-    cohen_kappa_score
+    cohen_kappa_score,
+    mean_squared_error,
 )
 
 # TODO: Add seed setting
@@ -85,6 +86,12 @@ class BaseModel(ABC):
         raise NotImplementedError
 
     def evaluate(self, test_user_day_data: Any)-> Dict[str, float]:
+        if self.output_layer.NAME == "BinaryLayer":
+            return self._evaluate_binary(test_user_day_data)
+        elif self.output_layer.NAME == "RegressionLayer":
+            return self._evaluate_regression(test_user_day_data)
+
+    def _evaluate_binary(self, test_user_day_data: Any)-> Dict[str, float]:
 
         predictions = self.predict(test_user_day_data)
         test_labels = test_user_day_data.get_y()
@@ -128,6 +135,15 @@ class BaseModel(ABC):
         }
         return metrics
 
+    def _evaluate_regression(self, test_user_day_data: Any)-> Dict[str, float]:
+        predictions = self.predict(test_user_day_data)
+        test_labels = test_user_day_data.get_y()
+        mse = mean_squared_error(test_labels, predictions)
+        return {
+            "Number of Test Obs": test_labels.shape[0],
+            "mse": mse
+        }
+
     def individual_evaluate(
         self, user_day_data: Any, plotAUC=False
     )->Dict[float, str]:
@@ -141,8 +157,11 @@ class BaseModel(ABC):
         for user in eval_users:
             ind_user_day_data = user_day_data.get_subset_for_users([user])
             metrics = self.evaluate(ind_user_day_data)
-            del metrics["FPR"]
-            del metrics["TPR"]
+            try:
+                del metrics["FPR"]
+                del metrics["TPR"]
+            except KeyError:
+                pass
             metrics_dict[int(user)] = metrics
 
         return metrics_dict

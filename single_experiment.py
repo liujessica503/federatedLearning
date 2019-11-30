@@ -40,8 +40,11 @@ def main():
                 "(" + parameter_dict['model_type'] + ")"
             )
         )
-    del results["FPR"]
-    del results["TPR"]
+    try:
+        del results["FPR"]
+        del results["TPR"]
+    except KeyError:
+        pass
     ExperimentUtils.write_to_json(
         ind_results, parameter_dict["output_path"] + "_by_user"
     )
