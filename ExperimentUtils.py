@@ -61,7 +61,10 @@ class ExperimentUtils:
             cv=parameter_dict['cv'],
             prediction_classes=parameter_dict[
                 "output_layer"
-            ]["classification_thresholds"]
+            ]["classification_thresholds"],
+            loss_type=parameter_dict[
+                "output_layer"
+            ]["loss_type"],
         )
 
         train_data = UserDayData(

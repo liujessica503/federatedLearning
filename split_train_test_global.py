@@ -12,7 +12,9 @@ import os
 from get_mood_class import get_mood_class
 
 
-def split_train_test_global(directory, cv, prediction_classes):
+def split_train_test_global(
+    directory, cv, prediction_classes, loss_type
+):
     train_data_dict = {}
     train_pairs_dict = {}
 
@@ -43,8 +45,8 @@ def split_train_test_global(directory, cv, prediction_classes):
     test_pairs = [test_pairs_dict[f] for f in files_in_folder]
     test_user_day_pairs = [item for sublist in test_pairs for item in sublist]
 
-    train_data = get_mood_class(train_data, prediction_classes)
-    test_data = get_mood_class(test_data, prediction_classes)
+    train_data = get_mood_class(train_data, prediction_classes, loss_type)
+    test_data = get_mood_class(test_data, prediction_classes, loss_type)
 
     train_covariates = train_data.drop('mood', axis=1)
     train_labels = np.ravel(train_data.mood)

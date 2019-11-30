@@ -7,7 +7,7 @@ Maintenance:
 # helper function to get binary mood
 
 
-def get_mood_class(data, prediction_classes):
+def get_mood_class(data, prediction_classes, loss_type):
 
     # drop Index column because Python has its own index
     data = data.drop('Index', axis=1)
@@ -37,31 +37,33 @@ def get_mood_class(data, prediction_classes):
         'mood_7',
     ]
 
-    # binary classification
-    if len(prediction_classes) == 1:
-        cutoff = prediction_classes[0]
-        for columnName in data[columns_to_change]:
-            columnSeriesObj = data[columnName]
-            data.loc[columnSeriesObj < cutoff, columnName] = float(0)
-            data.loc[columnSeriesObj >= cutoff, columnName] = float(1)
+    if loss_type == "classification":
 
-    elif len(prediction_classes) >= 2:
-        for columnName in data[columns_to_change]:
-            columnSeriesObj = data[columnName]
-            multi_class_label = float(0)
-            lower_cutoff = 0
-            for idx in range(0, len(prediction_classes)):
-                upper_cutoff = prediction_classes[idx]
+        # binary classification
+        if len(prediction_classes) == 1:
+            cutoff = prediction_classes[0]
+            for columnName in data[columns_to_change]:
+                columnSeriesObj = data[columnName]
+                data.loc[columnSeriesObj < cutoff, columnName] = float(0)
+                data.loc[columnSeriesObj >= cutoff, columnName] = float(1)
+
+        elif len(prediction_classes) >= 2:
+            for columnName in data[columns_to_change]:
+                columnSeriesObj = data[columnName]
+                multi_class_label = float(0)
+                lower_cutoff = 0
+                for idx in range(0, len(prediction_classes)):
+                    upper_cutoff = prediction_classes[idx]
+                    data.loc[
+                        (columnSeriesObj >= lower_cutoff) &
+                        (columnSeriesObj < upper_cutoff),
+                        columnName
+                    ] = multi_class_label
+                    multi_class_label += 1
+                    lower_cutoff = prediction_classes[idx]
                 data.loc[
-                    (columnSeriesObj >= lower_cutoff) &
-                    (columnSeriesObj < upper_cutoff),
+                    columnSeriesObj >= upper_cutoff,
                     columnName
                 ] = multi_class_label
-                multi_class_label += 1
-                lower_cutoff = prediction_classes[idx]
-            data.loc[
-                columnSeriesObj >= upper_cutoff,
-                columnName
-            ] = multi_class_label
 
     return data
