@@ -38,7 +38,10 @@ def get_mood_class(data, prediction_classes, loss_type):
     ]
 
     if loss_type == "classification":
-
+        
+        # prevent duplicate classes
+        prediction_classes = list(set(prediction_classes))
+        
         # binary classification
         if len(prediction_classes) == 1:
             cutoff = prediction_classes[0]
