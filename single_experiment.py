@@ -37,7 +37,7 @@ def main():
             results["AUC"],
             str(
                 parameter_dict["auc_output_path"] +
-                "(" + parameter_dict['model_type'] + ")"
+                "_(" + parameter_dict['model_type'] + ")"
             )
         )
     try:
@@ -46,13 +46,25 @@ def main():
     except KeyError:
         pass
     ExperimentUtils.write_to_json(
-        ind_results, parameter_dict["output_path"] + "_by_user"
+        ind_results,
+        str(
+            parameter_dict["auc_output_path"] + "_by_user_"
+            "_(" + parameter_dict['model_type'] + ")"
+        )
     )
     ExperimentUtils.write_to_csv(
-        results, parameter_dict["output_path"]
+        results,
+        str(
+            parameter_dict["auc_output_path"] +
+            "_(" + parameter_dict['model_type'] + ")"
+        )
     )
     ExperimentUtils.write_to_json(
-        results, parameter_dict["output_path"]
+        results,
+        str(
+            parameter_dict["auc_output_path"] +
+            "_(" + parameter_dict['model_type'] + ")"
+        )
     )
 
     finish = datetime.datetime.now() - start
