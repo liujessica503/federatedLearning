@@ -48,21 +48,21 @@ def main():
     ExperimentUtils.write_to_json(
         ind_results,
         str(
-            parameter_dict["auc_output_path"] + "_by_user_"
+            parameter_dict["output_path"] + "_by_user" +
             "_(" + parameter_dict['model_type'] + ")"
         )
     )
     ExperimentUtils.write_to_csv(
         results,
         str(
-            parameter_dict["auc_output_path"] +
+            parameter_dict["output_path"] +
             "_(" + parameter_dict['model_type'] + ")"
         )
     )
     ExperimentUtils.write_to_json(
         results,
         str(
-            parameter_dict["auc_output_path"] +
+            parameter_dict["output_path"] +
             "_(" + parameter_dict['model_type'] + ")"
         )
     )
