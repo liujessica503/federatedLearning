@@ -9,11 +9,9 @@ from sklearn.preprocessing import StandardScaler
 
 class FedModel(BaseModel):
 
-    def __init__(
-        self, parameter_config: Dict[str, float], parameter_overwrite={}
-    ):
+    def __init__(self, parameter_config: Dict[str, float]):
 
-        super().__init__(parameter_config, parameter_overwrite)
+        super().__init__(parameter_config)
         self.fed_model_parameters = parameter_config["fed_model_parameters"]
         self.clients_per_round = self.fed_model_parameters["clients_per_round"]
         self.local_updates_per_round = self.fed_model_parameters[
