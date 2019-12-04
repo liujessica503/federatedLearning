@@ -31,6 +31,7 @@ class FedModel(BaseModel):
         self.unique_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
         )
+        self.output_layer.fit_one_hot(user_day_data.get_y())
         self.scalers_dict = {}
         for user in self.unique_users:
             X_train, Y_train = user_day_data.get_data_for_users([user])
@@ -57,6 +58,7 @@ class FedModel(BaseModel):
                     )
                     user_scaler = self.scalers_dict[clients[i]]
                     X_train = user_scaler.transform(X_train)
+                    Y_train = self.output_layer.transform_labels(Y_train)
 
                     # NOTE: for FedModel batch_size is ignored
 
@@ -111,7 +113,9 @@ class FedModel(BaseModel):
         client save its own (most recent) standardizer, and then use that
         during prediction time.
         """
-        predictions = np.empty(len(user_day_data.get_y()))
+        predictions = np.empty(
+            [len(user_day_data.get_y()), self.output_layer.length]
+        )
         pred_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
         )
@@ -120,8 +124,10 @@ class FedModel(BaseModel):
             user_prediction_scaler = self.scalers_dict[user]
             X_test, Y_test = user_day_data.get_data_for_users([user])
             X_test = user_prediction_scaler.transform(X_test)
-            prediction = self.model.predict(X_test).ravel()
-            predictions[user_day_data._get_rows_for_users([user])] = prediction
+            prediction = self.model.predict(X_test)
+            predictions[
+                user_day_data._get_rows_for_users([user]), :
+            ] = prediction
         return predictions
 
     def _predict_on_server(self, user_day_data: Any)->List[float]:
@@ -131,7 +137,7 @@ class FedModel(BaseModel):
         """
         scaler = StandardScaler().fit(user_day_data.get_X())
         X_test = scaler.transform(user_day_data.get_X())
-        return self.model.predict(X_test).ravel()
+        return self.model.predict(X_test)
 
     def get_score(self, user_day_data: Any)->List[float]:
         self.check_is_trained()

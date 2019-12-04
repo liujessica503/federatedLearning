@@ -16,6 +16,7 @@ from sklearn.metrics import (
     f1_score,
     cohen_kappa_score,
     mean_squared_error,
+    accuracy_score,
 )
 
 # TODO: Add seed setting
@@ -90,6 +91,8 @@ class BaseModel(ABC):
             return self._evaluate_binary(test_user_day_data)
         elif self.output_layer.NAME == "RegressionLayer":
             return self._evaluate_regression(test_user_day_data)
+        elif self.output_layer.NAME == "MultiClassLayer":
+            return self._evaluate_multiclass(test_user_day_data)
 
     def _evaluate_binary(self, test_user_day_data: Any)-> Dict[str, float]:
 
@@ -142,6 +145,18 @@ class BaseModel(ABC):
         return {
             "Number of Test Obs": test_labels.shape[0],
             "mse": mse
+        }
+
+    def _evaluate_multiclass(self, test_user_day_data: Any)-> Dict[str, float]:
+        predictions = self.predict(test_user_day_data)
+        class_predictions = np.argmax(predictions, axis=1)
+        test_labels = test_user_day_data.get_y()
+        f1 = f1_score(test_labels, class_predictions, average="weighted")
+        accuracy = accuracy_score(test_labels, class_predictions)
+        return {
+            "Number of Test Obs": test_labels.shape[0],
+            "f1": f1,
+            "accuracy": accuracy
         }
 
     def individual_evaluate(

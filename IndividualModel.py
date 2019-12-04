@@ -1,6 +1,6 @@
 from BaseModel import BaseModel
 import numpy as np
-from typing import Any, List, Dict
+from typing import Any, List
 # standardize the data
 from sklearn.preprocessing import StandardScaler
 
@@ -13,6 +13,7 @@ class IndividualModel(BaseModel):
         )
         self.model_weights_dict = {}
         self.scalers_dict = {}
+        self.output_layer.fit_one_hot(user_day_data.get_y())
         for user in self.unique_users:
 
             self.model.set_weights(self.initialization)
@@ -21,6 +22,7 @@ class IndividualModel(BaseModel):
             X_train, Y_train = user_day_data.get_data_for_users([user])
             user_scaler = StandardScaler().fit(X_train)
             X_train = user_scaler.transform(X_train)
+            Y_train = self.output_layer.transform_labels(Y_train)
 
             # apply the template model, created in the init, to our data
             self.model.fit(
@@ -38,7 +40,9 @@ class IndividualModel(BaseModel):
     def predict(self, user_day_data: Any)->List[float]:
         self.check_is_trained()
 
-        predictions = np.empty(len(user_day_data.get_y()))
+        predictions = np.empty(
+            [len(user_day_data.get_y()), self.output_layer.length]
+        )
         pred_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
         )
@@ -48,8 +52,10 @@ class IndividualModel(BaseModel):
             user_prediction_scaler = self.scalers_dict[user]
             X_test, Y_test = user_day_data.get_data_for_users([user])
             X_test = user_prediction_scaler.transform(X_test)
-            prediction = self.model.predict(X_test).ravel()
-            predictions[user_day_data._get_rows_for_users([user])] = prediction
+            prediction = self.model.predict(X_test)
+            predictions[
+                user_day_data._get_rows_for_users([user]), :
+            ] = prediction
         return predictions
 
     def get_score(self, user_day_data: Any)->str:

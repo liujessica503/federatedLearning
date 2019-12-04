@@ -1,5 +1,6 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from keras.layers import Dense
+from sklearn import preprocessing
 
 
 class OutputLayer(ABC):
@@ -18,15 +19,26 @@ class OutputLayer(ABC):
             else:
                 return MultiClassLayer(output_layer_dict)
 
+    @abstractmethod
+    def transform_labels(self, labels):
+        raise NotImplementedError
+
 
 class BinaryLayer(OutputLayer):
 
     NAME = "BinaryLayer"
 
     def __init__(self, output_layer_dict):
-        self.layer = Dense(1, activation='sigmoid')
+        self.length = 1
+        self.layer = Dense(self.length, activation='sigmoid')
         self.loss = "binary_crossentropy"
         self.metrics = ['accuracy']
+
+    def transform_labels(self, labels):
+        return labels
+
+    def fit_one_hot(self, all_labels):
+        pass
 
 
 class MultiClassLayer(OutputLayer):
@@ -34,12 +46,17 @@ class MultiClassLayer(OutputLayer):
     NAME = "MultiClassLayer"
 
     def __init__(self, output_layer_dict):
-        self.layer = Dense(
-            len(output_layer_dict["classification_thresholds"]),
-            activation='sigmoid',
-        )
+        self.length = len(output_layer_dict["classification_thresholds"]) + 1
+        self.layer = Dense(self.length, activation='softmax')
         self.loss = "categorical_crossentropy"
         self.metrics = ['accuracy']
+        self.lb = preprocessing.LabelBinarizer()
+
+    def transform_labels(self, labels):
+        return self.lb.transform(labels)
+
+    def fit_one_hot(self, all_labels):
+        self.lb.fit(all_labels)
 
 
 class RegressionLayer(OutputLayer):
@@ -47,6 +64,10 @@ class RegressionLayer(OutputLayer):
     NAME = "RegressionLayer"
 
     def __init__(self, output_layer_dict):
-        self.layer = Dense(1)
+        self.length = 1
+        self.layer = Dense(self.length)
         self.loss = "mean_squared_error"
         self.metrics = ["mae", "mse"]
+
+    def transform_labels(self, labels):
+        return labels
