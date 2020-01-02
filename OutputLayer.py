@@ -16,8 +16,12 @@ class OutputLayer(ABC):
                 output_layer_dict["classification_thresholds"]
             ) == 1:
                 return BinaryLayer(output_layer_dict)
-            else:
+            elif len(output_layer_dict["classification_thresholds"]) > 1:
                 return MultiClassLayer(output_layer_dict)
+            else:
+                raise ValueError(
+                    'If loss_type is classification, classification_thresholds \
+                    in the user-inputted .json must be a string of at least length 1')
 
     @abstractmethod
     def transform_labels(self, labels):
@@ -66,8 +70,11 @@ class RegressionLayer(OutputLayer):
     def __init__(self, output_layer_dict):
         self.length = 1
         self.layer = Dense(self.length)
-        self.loss = "mean_squared_error"
+        self.loss = "mse"
         self.metrics = ["mae", "mse"]
 
     def transform_labels(self, labels):
         return labels
+
+    def fit_one_hot(self, all_labels):
+        pass
