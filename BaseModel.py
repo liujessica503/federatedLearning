@@ -16,6 +16,7 @@ from sklearn.metrics import (
     f1_score,
     cohen_kappa_score,
     mean_squared_error,
+    mean_absolute_error,
     accuracy_score,
 )
 
@@ -24,8 +25,9 @@ from sklearn.metrics import (
 
 class BaseModel(ABC):
 
-    def __init__(self, parameter_config: Dict[str, float]):
-
+    def __init__(
+        self, parameter_config: Dict[str, float], parameter_overwrite={}):
+    
         self.layers = parameter_config["layers"]
         self.input_dim = parameter_config["input_dim"]
         self.activation = parameter_config["activation"]
@@ -137,6 +139,7 @@ class BaseModel(ABC):
         predictions = self.predict(test_user_day_data)
         test_labels = test_user_day_data.get_y()
         mse = mean_squared_error(test_labels, predictions)
+       
         return {
             "Number of Test Obs": test_labels.shape[0],
             "mse": mse
@@ -154,6 +157,7 @@ class BaseModel(ABC):
             "accuracy": accuracy
         }
 
+    '''
     def individual_evaluate(
         self, user_day_data: Any, plotAUC=False
     )->Dict[float, str]:
@@ -175,6 +179,7 @@ class BaseModel(ABC):
             metrics_dict[int(user)] = metrics
 
         return metrics_dict
+    '''
 
     def reset(self)->None:
         self.model.set_weights(self.initialization)
