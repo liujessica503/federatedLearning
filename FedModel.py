@@ -43,13 +43,14 @@ class FedModel(BaseModel):
         client_weights = [0] * self.clients_per_round
         client_num_training_points = [0] * self.clients_per_round
         counter = 0
-        for _ in range(self.epochs):
-            for __ in range(rounds_per_epoch):
+        for epch in range(self.epochs):
+            for rnd in range(rounds_per_epoch):
                 clients = np.random.choice(
                     self.unique_users, self.clients_per_round
                 )
                 for i in range(self.clients_per_round):
-                    print(_, __, i)
+                    if self.verbose > 0:
+                        print(epch, rnd, i)
                     self.model.set_weights(self.full_model_weights)
                     X_train, Y_train = user_day_data.get_data_for_users(
                         [clients[i]]
