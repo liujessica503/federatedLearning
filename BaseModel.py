@@ -157,7 +157,6 @@ class BaseModel(ABC):
             "accuracy": accuracy
         }
 
-    '''
     def individual_evaluate(
         self, user_day_data: Any, plotAUC=False
     )->Dict[float, str]:
@@ -179,7 +178,6 @@ class BaseModel(ABC):
             metrics_dict[int(user)] = metrics
 
         return metrics_dict
-    '''
 
     def reset(self)->None:
         self.model.set_weights(self.initialization)
