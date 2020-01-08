@@ -37,9 +37,12 @@ def run_cv(
         )
         train_fold = train_data.get_subset_for_days(train_days)
         for lr in lrs:
+            # for cross-validation purposes,
+            # use current learn_rate instead of user-inputted learn rate
+            parameter_dict['learn_rate'] = lr
+
             model = model_class(
                 parameter_config=parameter_dict,
-                parameter_overwrite={'lr': lr}
             )
 
             results = ExperimentUtils.run_single_experiment(
@@ -93,8 +96,7 @@ def main():
     #lrs = [0.00001, 0.00005, 0.005, 0.01, 0.03, 0.05] # an hour on jessica's computer
     # lrs = [0.02, 0.03, 0.04, 0.06] # 30 min on jessica's computer
     # lrs = np.linspace(0,1,50, endpoint = False) # 2.55 hours for global model on (0,1,50) on jessica's computer
-    lrs = np.linspace(0,1,25, endpoint = False) # 3.6 hours for individiual model on (0,1,25) on jessica's computer, 2.65 hours for global model on (0,1,25)
-
+    lrs = np.linspace(0,1,25, endpoint = False) # 3.6 hours for individiual model on (0,1,25) on jessica's computer, 2.65 hours for global model + fed model on (0,1,25)
     train_data, test_data = ExperimentUtils.simple_train_test_split(parameter_dict)
 
     metrics_by_lr = run_cv(model_class, train_data, k, lrs, parameter_dict)
