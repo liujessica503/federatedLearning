@@ -26,7 +26,7 @@ from sklearn.metrics import (
 class BaseModel(ABC):
 
     def __init__(
-        self, parameter_config: Dict[str, float], parameter_overwrite={}):
+        self, parameter_config: Dict[str, float]):
     
         self.layers = parameter_config["layers"]
         self.input_dim = parameter_config["input_dim"]
