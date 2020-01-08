@@ -14,8 +14,8 @@ class FedModel(BaseModel):
         super().__init__(parameter_config)
         self.fed_model_parameters = parameter_config["fed_model_parameters"]
         self.clients_per_round = self.fed_model_parameters["clients_per_round"]
-        self.local_epochs_per_round = self.fed_model_parameters[
-            "local_epochs_per_round"
+        self.local_updates_per_round = self.fed_model_parameters[
+            "local_updates_per_round"
         ]
         self.deployment_location = self.fed_model_parameters[
             "deployment_location"
@@ -66,7 +66,7 @@ class FedModel(BaseModel):
                         Y_train,
                         epochs=1,
                         verbose=self.verbose,
-                        steps_per_epoch=self.local_epochs_per_round
+                        steps_per_epoch=self.local_updates_per_round
                     )
                     client_weights[i] = self.model.get_weights()
                     client_num_training_points[i] = len(Y_train)
