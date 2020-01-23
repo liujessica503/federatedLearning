@@ -62,7 +62,6 @@ class BaseModel(ABC):
                 lr=self.lr,
                 beta_1=0.9,
                 beta_2=0.999,
-                epsilon=None,
                 decay=0.0,
                 amsgrad=False,
             ),
