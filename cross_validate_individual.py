@@ -94,8 +94,7 @@ for user in user_list:
                 optimizer = optimizers.Adam(
                     lr=curr_lr, 
                     beta_1=0.9, 
-                    beta_2=0.999, 
-                    epsilon=None, 
+                    beta_2=0.999,
                     decay=0.0, 
                     amsgrad=False
                 ),
