@@ -9,7 +9,7 @@ from ExperimentUtils import ExperimentUtils
 
 def main():
     start = datetime.datetime.now()
-
+    
     with open(sys.argv[1]) as file:
         parameter_dict = json.load(file)
 
@@ -27,6 +27,9 @@ def main():
     results = ExperimentUtils.run_single_experiment(
         model, train_data, test_data
     )
+
+    results['lr'] = parameter_dict['learn_rate']
+    
     ind_results = model.individual_evaluate(test_data)
 
     if parameter_dict["plot_auc"]:
