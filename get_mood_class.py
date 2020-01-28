@@ -1,13 +1,6 @@
-
-'''Change ordinal mood to binary or multi-class
-Maintenance:
-10/1/19 Created
-'''
-
 # helper function to get binary mood
 
-
-def get_mood_class(data, prediction_classes, loss_type):
+def get_mood_class(data, classification_thresholds, loss_type):
 
     # drop Index column because Python has its own index
     data = data.drop('Index', axis=1)
@@ -40,30 +33,30 @@ def get_mood_class(data, prediction_classes, loss_type):
     if loss_type == "classification":
         
         # prevent duplicate classes
-        prediction_classes = list(set(prediction_classes))
+        classification_thresholds = list(set(classification_thresholds))
         
         # binary classification
-        if len(prediction_classes) == 1:
-            cutoff = prediction_classes[0]
+        if len(classification_thresholds) == 1:
+            cutoff = classification_thresholds[0]
             for columnName in data[columns_to_change]:
                 columnSeriesObj = data[columnName]
                 data.loc[columnSeriesObj < cutoff, columnName] = float(0)
                 data.loc[columnSeriesObj >= cutoff, columnName] = float(1)
 
-        elif len(prediction_classes) >= 2:
+        elif len(classification_thresholds) >= 2:
             for columnName in data[columns_to_change]:
                 columnSeriesObj = data[columnName]
                 multi_class_label = float(0)
                 lower_cutoff = 0
-                for idx in range(0, len(prediction_classes)):
-                    upper_cutoff = prediction_classes[idx]
+                for idx in range(0, len(classification_thresholds)):
+                    upper_cutoff = classification_thresholds[idx]
                     data.loc[
                         (columnSeriesObj >= lower_cutoff) &
                         (columnSeriesObj < upper_cutoff),
                         columnName
                     ] = multi_class_label
                     multi_class_label += 1
-                    lower_cutoff = prediction_classes[idx]
+                    lower_cutoff = classification_thresholds[idx]
                 data.loc[
                     columnSeriesObj >= upper_cutoff,
                     columnName
