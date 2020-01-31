@@ -1,12 +1,13 @@
 import tensorflow as tf
 import numpy as np
 import random
-
+import os
 from abc import ABC, abstractmethod
 from typing import Any, List, Dict
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import optimizers
+from keras import backend as K # for seed
 from OutputLayer import OutputLayer
 from sklearn.metrics import (
     roc_curve,
@@ -36,11 +37,17 @@ class BaseModel(ABC):
         self.batch_size = parameter_config["batch_size"]
         self.verbose = parameter_config["verbose"]
         self.output_path = parameter_config["output_path"]
+
+        # set seeds
         self.seed = parameter_config["seed"] * 1234567
+        random.seed(self.seed)  
         self.np_seed = self.seed * 2
         np.random.seed(self.np_seed)
-        tf.random.set_random_seed(self.seed)
-        random.seed(self.seed)
+        tf.set_random_seed(self.seed)
+
+        session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+        sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+        K.set_session(sess)
 
         self.model = Sequential()
         self.output_layer = OutputLayer.from_config(
@@ -181,6 +188,8 @@ class BaseModel(ABC):
     def reset(self)->None:
         self.model.set_weights(self.initialization)
         self.is_trained = False
+        # 1/29/2020 trying this -- will only affect if you run multiple experiments without exiting python interpreter
+        tf.reset_default_graph()
 
     def check_is_trained(self)->None:
         if not self.is_trained:
