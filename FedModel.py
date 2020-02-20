@@ -6,6 +6,10 @@ from typing import Any, Dict, List
 # standardize the data
 from sklearn.preprocessing import StandardScaler
 
+# to keep track of clients
+import csv 
+import sys 
+import json
 
 class FedModel(BaseModel):
 
@@ -40,14 +44,30 @@ class FedModel(BaseModel):
         moment_2 = [np.zeros(np.shape(x)) for x in self.full_model_weights]
 
         rounds_per_epoch = int(len(self.unique_users) / self.clients_per_round)
+
         client_weights = [0] * self.clients_per_round
         client_num_training_points = [0] * self.clients_per_round
         counter = 0
-        for epch in range(self.epochs):
-            for rnd in range(rounds_per_epoch):
+        for epch in range(self.epochs): # 8 epochs
+            for rnd in range(rounds_per_epoch): # 6 rounds per epoch = 505 unique users / 80 clients per round
+
+                # select 80 clients
                 clients = np.random.choice(
                     self.unique_users, self.clients_per_round
                 )
+
+                # write the clients we're sampling to file
+                with open(sys.argv[1]) as file:
+                    parameter_dict = json.load(file)
+                client_file_name = str(parameter_dict["output_path"] +
+                    "_(" + parameter_dict['model_type'] + ")") + "clientsRecord.csv"
+                with open(client_file_name, mode = 'a') as csvfile:
+                    file_writer = csv.writer(csvfile, delimiter=',')
+                    file_writer.writerow(clients)
+                # end writing
+
+                
+
                 for i in range(self.clients_per_round):
                     if self.verbose > 0:
                         print(epch, rnd, i)
