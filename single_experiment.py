@@ -13,6 +13,7 @@ def main():
     with open(sys.argv[1]) as file:
         parameter_dict = json.load(file)
 
+
     train_data, test_data = ExperimentUtils.simple_train_test_split(
         parameter_dict
     )
@@ -25,7 +26,7 @@ def main():
     model = model_class(parameter_config=parameter_dict)
 
     results = ExperimentUtils.run_single_experiment(
-        model, train_data, test_data
+        model, train_data, test_data, parameter_dict['test_callback']
     )
 
     results['lr'] = parameter_dict['learn_rate']

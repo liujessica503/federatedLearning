@@ -29,7 +29,7 @@ class FedModel(BaseModel):
         ]
         self.fed_stepsize = self.fed_model_parameters["fed_stepsize"]
 
-    def train(self, user_day_data: Any) -> None:
+    def train(self, user_day_data: Any, test_data = None) -> None:
         self.unique_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
         )

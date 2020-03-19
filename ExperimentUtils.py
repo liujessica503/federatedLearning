@@ -26,8 +26,9 @@ class ExperimentUtils:
         model: BaseModel,
         train_data: UserDayData,
         test_data: UserDayData,
+        test_callback = 0
     )->Dict:
-        model.train(train_data)
+        model.train(train_data, test_data, test_callback)
         metrics = model.evaluate(test_data)
         return metrics
 
