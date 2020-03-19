@@ -1,5 +1,5 @@
-from BaseModel import BaseModel
-from TestCallback import TestCallback
+from BaseModel import BaseModel, TestCallback
+#from TestCallback import TestCallback
 from typing import List, Any
 # standardize the data
 from sklearn.preprocessing import StandardScaler
@@ -22,7 +22,8 @@ class GlobalModel(BaseModel):
         if test_callback == 1:
             X_test = self.scaler.transform(test_user_day_data.get_X())
             Y_test = test_user_day_data.get_y()
-            callback_list = [TestCallback((X_test, Y_test))]
+            # pass in reference to class itself
+            callback_list = [TestCallback((test_user_day_data), self)]
         else:
             callback_list = []
 

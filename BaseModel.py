@@ -20,8 +20,33 @@ from sklearn.metrics import (
     mean_absolute_error,
     accuracy_score,
 )
+import keras.callbacks
+import sys
+import json
 
 # TODO: Add seed setting
+
+class TestCallback(keras.callbacks.Callback):
+
+    def __init__(self, test_user_day_data: Any, parentModel):
+        self.test_user_day_data = test_user_day_data
+        self.parentModel = parentModel
+
+    def on_epoch_end(self, epoch, logs={}):
+
+        with open(sys.argv[1]) as file:
+            parameter_dict = json.load(file)
+            loss_type = parameter_dict["output_layer"]["loss_type"]
+
+        metrics = self.parentModel.evaluate(self.test_user_day_data)
+        # write the test results to file (append after each epoch)
+        callback_file_name = str(parameter_dict["output_path"] +
+            "_(" + parameter_dict['model_type'] + ")") + "test_per_epoch"
+        with open(callback_file_name + ".json", "a") as f:
+            json.dump(metrics, f, indent=4)
+        print('\nTesting metrics: {}\n'.format(metrics))
+        return metrics
+        
 
 
 class BaseModel(ABC):
@@ -192,5 +217,8 @@ class BaseModel(ABC):
         tf.reset_default_graph()
 
     def check_is_trained(self)->None:
-        if not self.is_trained:
-            raise RuntimeError("Model not yet trained")
+        pass
+        # if not self.is_trained:
+        #     raise RuntimeError("Model not yet trained")
+
+
