@@ -28,17 +28,28 @@ import json
 
 class TestCallback(keras.callbacks.Callback):
 
-    def __init__(self, test_user_day_data: Any, parentModel):
+    # include user for IndividualModel
+    def __init__(self, test_user_day_data: Any, parentModel, userID = None, indiv_training_obs = None):
         self.test_user_day_data = test_user_day_data
         self.parentModel = parentModel
+        self.userID = userID
+        self.trainingObs = indiv_training_obs
 
     def on_epoch_end(self, epoch, logs={}):
-
         with open(sys.argv[1]) as file:
             parameter_dict = json.load(file)
             loss_type = parameter_dict["output_layer"]["loss_type"]
+            model_type = parameter_dict['model_type']
 
-        metrics = self.parentModel.evaluate(self.test_user_day_data)
+        if model_type == 'individual_model':
+            metrics = self.parentModel.evaluate(self.test_user_day_data, userID = self.userID)
+            metrics['Number of Training Obs'] = self.trainingObs
+            metrics['user'] = int(self.userID)
+
+        # for global and federated models
+        else:
+            metrics = self.parentModel.evaluate(self.test_user_day_data)
+
         # write the test results to file (append after each epoch)
         callback_file_name = str(parameter_dict["output_path"] +
             "_(" + parameter_dict['model_type'] + ")") + "test_per_epoch"
@@ -107,24 +118,32 @@ class BaseModel(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def predict(self, user_day_data: Any)-> List[float]:
+    def predict(self, user_day_data: Any, userID = None) -> List[float]:
         raise NotImplementedError
 
     @abstractmethod
     def get_score(self, user_day_data)->str:
         raise NotImplementedError
 
-    def evaluate(self, test_user_day_data: Any)-> Dict[str, float]:
+    # including user for IndividualModel
+    def evaluate(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
         if self.output_layer.NAME == "BinaryLayer":
-            return self._evaluate_binary(test_user_day_data)
+            return self._evaluate_binary(test_user_day_data, userID)
         elif self.output_layer.NAME == "RegressionLayer":
-            return self._evaluate_regression(test_user_day_data)
+            return self._evaluate_regression(test_user_day_data, userID)
         elif self.output_layer.NAME == "MultiClassLayer":
-            return self._evaluate_multiclass(test_user_day_data)
+            return self._evaluate_multiclass(test_user_day_data, userID)
 
-    def _evaluate_binary(self, test_user_day_data: Any)-> Dict[str, float]:
+    def _evaluate_binary(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
 
-        predictions = self.predict(test_user_day_data)
+        if userID:
+            print('running individual model\'s predict function')
+            # use individual model's predict function
+            predictions = self.predict(test_user_day_data, userID)
+        else: 
+            # use global / federated model's predict function
+            predictions = self.predict(test_user_day_data)
+        
         test_labels = test_user_day_data.get_y()
 
         binary_prediction = predictions > 0.50
@@ -166,18 +185,43 @@ class BaseModel(ABC):
         }
         return metrics
 
-    def _evaluate_regression(self, test_user_day_data: Any)-> Dict[str, float]:
-        predictions = self.predict(test_user_day_data)
-        test_labels = test_user_day_data.get_y()
-        mse = mean_squared_error(test_labels, predictions)
+    def _evaluate_regression(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
+        predictions = None
+        if userID:
+            # if we're in a callback, get a prediction for a single user
+            if self.is_trained == False:
+                # import pdb 
+                # pdb.set_trace()
+                print('running individual model\'s predict function')
+                # use individual model's predict function
+                # when we're in a callback, returns prediction and observed test labels 
+                prediction, test_labels = self.predict(test_user_day_data, userID)
+                mse = mean_squared_error(test_labels, prediction)
+            # if we're done training (not in a callback), get all the individual predictions
+            elif self.is_trained == True:
+                predictions = self.predict(test_user_day_data, userID)
+        else: 
+            # use global / federated model's predict function
+            predictions = self.predict(test_user_day_data)
+            test_labels = test_user_day_data.get_y()
+            mse = mean_squared_error(test_labels, predictions)
        
         return {
             "Number of Test Obs": test_labels.shape[0],
             "mse": mse
         }
 
-    def _evaluate_multiclass(self, test_user_day_data: Any)-> Dict[str, float]:
-        predictions = self.predict(test_user_day_data)
+    def _evaluate_multiclass(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
+        if userID:
+            # import pdb
+            # pdb.set_trace()
+            print('running individual model\'s predict function')
+            # use individual model's predict function
+            predictions = self.predict(test_user_day_data, userID)
+        else: 
+            # use global / federated model's predict function
+            predictions = self.predict(test_user_day_data)
+
         class_predictions = np.argmax(predictions, axis=1)
         test_labels = test_user_day_data.get_y()
         f1 = f1_score(test_labels, class_predictions, average="weighted")
@@ -188,10 +232,8 @@ class BaseModel(ABC):
             "accuracy": accuracy
         }
 
-    def individual_evaluate(
-        self, user_day_data: Any, plotAUC=False
-    )->Dict[float, str]:
-        self.check_is_trained()
+    def individual_evaluate(self, user_day_data: Any)->Dict[float, str]:
+        # self.check_is_trained()
 
         eval_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
@@ -216,9 +258,9 @@ class BaseModel(ABC):
         # 1/29/2020 trying this -- will only affect if you run multiple experiments without exiting python interpreter
         tf.reset_default_graph()
 
+    # not using this when we are doing callbacks, since for callbacks we will be testing before model has finished training
     def check_is_trained(self)->None:
-        pass
-        # if not self.is_trained:
-        #     raise RuntimeError("Model not yet trained")
+        if not self.is_trained:
+            raise RuntimeError("Model not yet trained")
 
 
