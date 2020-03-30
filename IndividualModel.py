@@ -26,18 +26,15 @@ class IndividualModel(BaseModel):
             self.scalers_dict[user] = user_scaler
             X_train = user_scaler.transform(X_train)
             Y_train = self.output_layer.transform_labels(Y_train)
-            # save number of training points
-            indiv_training_obs = X_train.shape[0]
             
             # if json set test_callback to 1, after each epoch of training, 
-            # we will evaluate the model on our test set     
+            # we will evaluate the current model on our test set     
             callback_list = []
             if test_callback == 1:
                 X_test, Y_test = test_user_day_data.get_data_for_users([user])
-                
                 # check if user has test data -- if they don't, then we're not doing callbacks
                 if len(Y_test) > 0:
-                    callback_list = [TestCallback((test_user_day_data), parentModel = self, userID = user, indiv_training_obs = indiv_training_obs)]
+                    callback_list = [TestCallback((test_user_day_data), parentModel = self, userID = user)]
 
             #### THE ISSUE IS FOR CALLBACKS, WE NEED TO PASS IN THE USER SO THAT OUR PREDICT METHOD ONLY PREDICTS ON THAT USER
             #### AND NOT ON EVERYONE
@@ -77,7 +74,6 @@ class IndividualModel(BaseModel):
         # if we've already finished training for all of our epochs
         # return a dictionary of predictions containing prediction for each user
         elif self.is_trained == True:
-
             predictions = np.empty(
                 [len(user_day_data.get_y()), self.output_layer.length]
             )
@@ -94,7 +90,6 @@ class IndividualModel(BaseModel):
                 predictions[
                     user_day_data._get_rows_for_users([user]), :
                 ] = prediction
-            
             return predictions
 
 

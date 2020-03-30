@@ -29,11 +29,10 @@ import json
 class TestCallback(keras.callbacks.Callback):
 
     # include user for IndividualModel
-    def __init__(self, test_user_day_data: Any, parentModel, userID = None, indiv_training_obs = None):
+    def __init__(self, test_user_day_data: Any, parentModel, userID = None):
         self.test_user_day_data = test_user_day_data
         self.parentModel = parentModel
         self.userID = userID
-        self.trainingObs = indiv_training_obs
 
     def on_epoch_end(self, epoch, logs={}):
         with open(sys.argv[1]) as file:
@@ -43,7 +42,6 @@ class TestCallback(keras.callbacks.Callback):
 
         if model_type == 'individual_model':
             metrics = self.parentModel.evaluate(self.test_user_day_data, userID = self.userID)
-            metrics['Number of Training Obs'] = self.trainingObs
             metrics['user'] = int(self.userID)
 
         # for global and federated models
@@ -135,13 +133,17 @@ class BaseModel(ABC):
             return self._evaluate_multiclass(test_user_day_data, userID)
 
     def _evaluate_binary(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
-
+        # for individual model, use individual model's predict function
         if userID:
-            print('running individual model\'s predict function')
-            # use individual model's predict function
-            predictions = self.predict(test_user_day_data, userID)
+            # if we're in a callback, get a prediction for a single user
+            if self.is_trained == False:
+                # use individual model's predict function
+                predictions = self.predict(test_user_day_data, userID)
+            # if we're done training (not in a callback), get all the individual predictions
+            elif self.is_trained == True:
+                predictions = self.predict(test_user_day_data, userID)
+        # for global and federated models, use the respective predict function
         else: 
-            # use global / federated model's predict function
             predictions = self.predict(test_user_day_data)
         
         test_labels = test_user_day_data.get_y()
@@ -187,6 +189,7 @@ class BaseModel(ABC):
 
     def _evaluate_regression(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
         predictions = None
+        # for individual model, use individual model's predict function
         if userID:
             # if we're in a callback, get a prediction for a single user
             if self.is_trained == False:
@@ -200,8 +203,8 @@ class BaseModel(ABC):
             # if we're done training (not in a callback), get all the individual predictions
             elif self.is_trained == True:
                 predictions = self.predict(test_user_day_data, userID)
+        # for global and federated models, use the respective predict function
         else: 
-            # use global / federated model's predict function
             predictions = self.predict(test_user_day_data)
             test_labels = test_user_day_data.get_y()
             mse = mean_squared_error(test_labels, predictions)

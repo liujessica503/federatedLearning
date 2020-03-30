@@ -18,11 +18,11 @@ class GlobalModel(BaseModel):
 
 
         # if json set test_callback to 1, after each epoch of training, 
-        # we will evaluate the model on our test set     
+        # we will evaluate the current model on our test set   
+        callback_list = []  
         if test_callback == 1:
             callback_list = [TestCallback((test_user_day_data), self)]
-        else:
-            callback_list = []
+            
 
 
         # apply the template model, created in the init, to our data    

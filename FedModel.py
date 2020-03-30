@@ -29,7 +29,7 @@ class FedModel(BaseModel):
         ]
         self.fed_stepsize = self.fed_model_parameters["fed_stepsize"]
 
-    def train(self, user_day_data: Any, test_data = None) -> None:
+    def train(self, user_day_data: Any, test_user_day_data: Any, test_callback = 0) -> None:
         self.unique_users = np.unique(
             [x[0] for x in user_day_data.get_user_day_pairs()]
         )
@@ -66,8 +66,6 @@ class FedModel(BaseModel):
                     file_writer.writerow(clients)
                 # end writing
 
-                
-
                 for i in range(self.clients_per_round):
                     if self.verbose > 0:
                         print(epch, rnd, i)
@@ -75,9 +73,33 @@ class FedModel(BaseModel):
                     X_train, Y_train = user_day_data.get_data_for_users(
                         [clients[i]]
                     )
+
                     user_scaler = self.scalers_dict[clients[i]]
                     X_train = user_scaler.transform(X_train)
                     Y_train = self.output_layer.transform_labels(Y_train)
+
+                    # # if json set test_callback to 1,
+                    # # we will evaluate the current model on our test set
+                    # import pdb
+                    # pdb.set_trace()
+                    # if test_callback == 1:
+                    #     X_test, Y_test = test_user_day_data.get_data_for_users([clients[i]])
+                    #     X_test = user_scaler.transform(X_test)
+                    #     # would have to evaluate on userID's test data (see IndividualModel predict funcion)
+                    #     metrics = self.evaluate(test_user_day_data, userID = clients[i])
+
+                    #     with open(sys.argv[1]) as file:
+                    #         parameter_dict = json.load(file)
+                    #         loss_type = parameter_dict["output_layer"]["loss_type"]
+                    #         model_type = parameter_dict['model_type']
+
+                    #     # write the test results to file (append after each epoch)
+                    #     callback_file_name = str(parameter_dict["output_path"] +
+                    #         "_(" + parameter_dict['model_type'] + ")") + "test_per_epoch"
+                    #     with open(callback_file_name + ".json", "a") as f:
+                    #         json.dump(metrics, f, indent=4)
+                    #     print('\nTesting metrics: {}\n'.format(metrics))
+                    # # end code for callback
 
                     # NOTE: for FedModel batch_size is ignored
 
@@ -112,11 +134,31 @@ class FedModel(BaseModel):
                     raise RuntimeError("global_aggregator not valid")
                 self.full_model_weights = new_weights
 
+            # if json set test_callback to 1,
+            # we will evaluate the current model on our test set
+            # import pdb
+            # pdb.set_trace()
+            if test_callback == 1:
+                metrics = self.evaluate(test_user_day_data)
+
+                with open(sys.argv[1]) as file:
+                    parameter_dict = json.load(file)
+                    loss_type = parameter_dict["output_layer"]["loss_type"]
+                    model_type = parameter_dict['model_type']
+
+                # write the test results to file (append after each epoch)
+                callback_file_name = str(parameter_dict["output_path"] +
+                    "_(" + parameter_dict['model_type'] + ")") + "test_per_epoch"
+                with open(callback_file_name + ".json", "a") as f:
+                    json.dump(metrics, f, indent=4)
+                print('\nTesting metrics: {}\n'.format(metrics))
+            # end code for callback
+
         self.model.set_weights(self.full_model_weights)
         self.is_trained = True
 
     def predict(self, user_day_data: Any)->List[float]:
-        self.check_is_trained()
+        # self.check_is_trained()
         if self.deployment_location == DeploymentLocationsEnum.CLIENT.value:
             predictions = self._predict_on_client(user_day_data)
         elif self.deployment_location == DeploymentLocationsEnum.SERVER.value:
@@ -159,7 +201,7 @@ class FedModel(BaseModel):
         return self.model.predict(X_test)
 
     def get_score(self, user_day_data: Any)->List[float]:
-        self.check_is_trained()
+        # self.check_is_trained()
         if self.deployment_location == DeploymentLocationsEnum.CLIENT.value:
             scores = self._get_score_on_client(user_day_data)
         elif self.deployment_location == DeploymentLocationsEnum.SERVER.value:
