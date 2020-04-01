@@ -93,19 +93,31 @@ class IndividualModel(BaseModel):
             return predictions
 
 
-    def get_score(self, user_day_data: Any)->str:
+    def get_score(self, user_day_data: Any, userID = None)->str:
         # self.check_is_trained()
 
-        # only the users that we have test data for
-        eval_users = np.unique(
-            [x[0] for x in user_day_data.get_user_day_pairs()]
-        )
         score = ""
-        for user in eval_users:
-            self.model.set_weights(self.model_weights_dict[user])
-            user_prediction_scaler = self.scalers_dict[user]
-            X_test, Y_test = user_day_data.get_data_for_users([user])
+        
+        # if we are predicting during callbacks, need argument userID
+        # will return a single prediction for that user
+        if self.is_trained == False:
+            self.model.set_weights(self.model.get_weights())
+            user_prediction_scaler = self.scalers_dict[userID]
+            X_test, Y_test = user_day_data.get_data_for_users([userID])
             X_test = user_prediction_scaler.transform(X_test)
             score = score + str(self.model.evaluate(X_test, Y_test)) + "\n"
+
+        # if we've already finished training for all of our epochs
+        elif self.is_trained == True:
+            # only the users that we have test data for
+            eval_users = np.unique(
+                [x[0] for x in user_day_data.get_user_day_pairs()]
+            )
+            for user in eval_users:
+                self.model.set_weights(self.model_weights_dict[user])
+                user_prediction_scaler = self.scalers_dict[user]
+                X_test, Y_test = user_day_data.get_data_for_users([user])
+                X_test = user_prediction_scaler.transform(X_test)
+                score = score + str(self.model.evaluate(X_test, Y_test)) + "\n"
 
         return score

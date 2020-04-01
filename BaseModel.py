@@ -133,20 +133,21 @@ class BaseModel(ABC):
             return self._evaluate_multiclass(test_user_day_data, userID)
 
     def _evaluate_binary(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
-        # for individual model, use individual model's predict function
+        
+        # for callbacks in individual model
         if userID:
             # if we're in a callback, get a prediction for a single user
             if self.is_trained == False:
                 # use individual model's predict function
-                predictions = self.predict(test_user_day_data, userID)
-            # if we're done training (not in a callback), get all the individual predictions
-            elif self.is_trained == True:
-                predictions = self.predict(test_user_day_data, userID)
+                predictions, test_labels = self.predict(test_user_day_data, userID)
+            # # if we're done training (not in a callback), get all the individual predictions
+            # elif self.is_trained == True:
+            #     predictions = self.predict(test_user_day_data, userID)
+
         # for global and federated models, use the respective predict function
         else: 
             predictions = self.predict(test_user_day_data)
-        
-        test_labels = test_user_day_data.get_y()
+            test_labels = test_user_day_data.get_y()
 
         binary_prediction = predictions > 0.50
 
@@ -162,7 +163,7 @@ class BaseModel(ABC):
             fpr, tpr, auc_value = [[], [], None]
 
         # evaluate performance
-        score = self.get_score(test_user_day_data)
+        score = self.get_score(test_user_day_data, userID)
         # Precision
         precision = precision_score(test_labels, binary_prediction)
         # Recall

@@ -140,6 +140,8 @@ class FedModel(BaseModel):
             # pdb.set_trace()
             if test_callback == 1:
                 metrics = self.evaluate(test_user_day_data)
+                # import pdb
+                # pdb.set_trace()
 
                 with open(sys.argv[1]) as file:
                     parameter_dict = json.load(file)
