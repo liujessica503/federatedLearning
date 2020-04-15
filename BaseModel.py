@@ -206,13 +206,18 @@ class BaseModel(ABC):
                 # use individual model's predict function
                 # when we're in a callback, returns prediction and observed test labels 
                 prediction, test_labels = self.predict(test_user_day_data, userID)
+
+                # cap predictions to be between 1-10, since our mood is measured on 1-10 scale
+                prediction = [10 if x > 10 else 1 if x < 1 else x for x in prediction]
                 mse = mean_squared_error(test_labels, prediction)
             # if we're done training (not in a callback), get all the individual predictions
             elif self.is_trained == True:
                 predictions = self.predict(test_user_day_data, userID)
+                predictions = [10 if x > 10 else 1 if x < 1 else x for x in predictions]
         # for global and federated models, use the respective predict function
         else: 
             predictions = self.predict(test_user_day_data)
+            predictions = [10 if x > 10 else 1 if x < 1 else x for x in predictions]
             test_labels = test_user_day_data.get_y()
             mse = mean_squared_error(test_labels, predictions)
        
