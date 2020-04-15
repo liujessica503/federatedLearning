@@ -51,8 +51,15 @@ class TestCallback(keras.callbacks.Callback):
         # write the test results to file (append after each epoch)
         callback_file_name = str(parameter_dict["output_path"] +
             "_(" + parameter_dict['model_type'] + ")") + "test_per_epoch"
-        with open(callback_file_name + ".json", "a") as f:
-            json.dump(metrics, f, indent=4)
+
+        if loss_type == 'regression':
+            with open(callback_file_name + ".json", "a") as f:
+                #f.write(str(metrics['mse']) + '\n')
+                json.dump(metrics, f, indent=4)
+        elif loss_type == 'classification':
+            with open(callback_file_name + ".json", "a") as f:
+                #f.write(str(metrics['AUC']) + '\n')
+                json.dump(metrics, f, indent=4)
         print('\nTesting metrics: {}\n'.format(metrics))
         return metrics
         
@@ -134,20 +141,20 @@ class BaseModel(ABC):
 
     def _evaluate_binary(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
         
-        # for callbacks in individual model
-        if userID:
-            # if we're in a callback, get a prediction for a single user
-            if self.is_trained == False:
-                # use individual model's predict function
-                predictions, test_labels = self.predict(test_user_day_data, userID)
-            # # if we're done training (not in a callback), get all the individual predictions
-            # elif self.is_trained == True:
-            #     predictions = self.predict(test_user_day_data, userID)
+        # if we're in a callback for the indivdual model
+        if self.is_trained == False and userID:
+            # get a prediction for a single user
+            predictions, test_labels = self.predict(test_user_day_data, userID)
+            # evaluate performance
+            score = self.get_score(test_user_day_data, userID)
 
-        # for global and federated models, use the respective predict function
+        # if we're done training (not in a callback) for the individual model
+        # or for global and federated models
         else: 
             predictions = self.predict(test_user_day_data)
             test_labels = test_user_day_data.get_y()
+            # evaluate performance
+            score = self.get_score(test_user_day_data)
 
         binary_prediction = predictions > 0.50
 
@@ -162,8 +169,7 @@ class BaseModel(ABC):
             # initialize since we're printing to the csv
             fpr, tpr, auc_value = [[], [], None]
 
-        # evaluate performance
-        score = self.get_score(test_user_day_data, userID)
+
         # Precision
         precision = precision_score(test_labels, binary_prediction)
         # Recall
