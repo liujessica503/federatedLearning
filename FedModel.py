@@ -136,14 +136,10 @@ class FedModel(BaseModel):
                     raise RuntimeError("global_aggregator not valid")
                 self.full_model_weights = new_weights
 
-            # if json set test_callback to 1,
+            # if user-inputted json set test_callback to 1,
             # we will evaluate the current model on our test set
-            # import pdb
-            # pdb.set_trace()
-
-            self.model.set_weights(self.full_model_weights)
-            
             if test_callback == 1:
+                self.model.set_weights(self.full_model_weights)
                 metrics = self.evaluate(test_user_day_data)
                 # import pdb
                 # pdb.set_trace()
