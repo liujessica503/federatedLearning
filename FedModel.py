@@ -49,7 +49,7 @@ class FedModel(BaseModel):
         client_num_training_points = [0] * self.clients_per_round
         counter = 0
         for epch in range(self.epochs): # 8 epochs
-            for rnd in range(rounds_per_epoch): # 6 rounds per epoch = 505 unique users / 80 clients per round
+            for rnd in range(rounds_per_epoch): # 6 rounds per epoch = 510 unique users / 80 clients per round
 
                 # select 80 clients
                 clients = np.random.choice(
