@@ -43,7 +43,7 @@ class GlobalModelPersonalized(BaseModel):
     def __init__(self, parameter_config: Dict[str, float]):
         super().__init__(parameter_config)
         self.parameter_config = parameter_config
-        self.num_personalized_units = 10
+        self.num_personalized_units = 2
 
     def train(
         self, user_day_data: Any, test_user_day_data: Any, test_callback=0
