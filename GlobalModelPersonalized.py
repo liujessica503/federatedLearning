@@ -20,8 +20,6 @@ class PersonalizedInput(Layer):
         self.len_users = len(users)
         self.personalized_units = personalized_units
 
-        self.multiply = keras.layers.Multiply()
-
     def build(self, input_shape):
         self.personal_embeddings = Embedding(
             input_dim=self.len_users,
@@ -36,13 +34,16 @@ class PersonalizedInput(Layer):
         )
         return new_inputs
 
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], input_shape[1] - 1 + self.personalized_units)
+
 
 class GlobalModelPersonalized(BaseModel):
 
     def __init__(self, parameter_config: Dict[str, float]):
         super().__init__(parameter_config)
         self.parameter_config = parameter_config
-        self.num_personalized_units = 1
+        self.num_personalized_units = 10
 
     def train(
         self, user_day_data: Any, test_user_day_data: Any, test_callback=0
@@ -70,17 +71,16 @@ class GlobalModelPersonalized(BaseModel):
             PersonalizedInput(
                 unique_users.tolist(),
                 personalized_units=self.num_personalized_units,
-                input_dim=self.input_dim,
+                input_dim=self.input_dim + 1,
             )
         )
-
         self.model.add(
             Dense(
                 self.layers[0],
                 activation=self.activation,
-                input_dim=self.input_dim - 1 + self.num_personalized_units
             )
         )
+
         for i in range(1, len(self.layers)):
             self.model.add(Dense(self.layers[i], activation=self.activation))
         self.model.add(self.output_layer.layer)
