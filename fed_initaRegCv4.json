@@ -1,0 +1,28 @@
+{
+	"model_type": "fed_model",
+	"seed": 360,
+	"input_directory": "../cv4_ImputeUsingTrainingMean",
+	"output_path": "../cv4_fed_regression1_narrowGrid_newLocalUpdates.csv",
+	"cv": 4,
+	"input_dim": 126,
+	"layers": [12, 8, 8],
+	"activation": "relu",
+	"output_layer": {
+		"loss_type": "regression",
+		"classification_thresholds": ""
+	},
+	"learn_rate": 0.1,
+	"batch_size": 40,
+	"epochs": 10,
+	"test_callback": 1,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "../cv4_fed_regression.png",
+	"fed_model_parameters": {
+		"clients_per_round": 80,
+		"local_updates_per_round": 8,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 1
+	}
+}
