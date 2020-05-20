@@ -9,6 +9,7 @@ from typing import Any, Dict
 
 from IndividualModel import IndividualModel
 from GlobalModel import GlobalModel
+from GlobalModelPersonalized import GlobalModelPersonalized
 from FedModel import FedModel
 from BaseModel import BaseModel
 
@@ -18,6 +19,7 @@ class ExperimentUtils:
     model_registry = {
         "individual_model": IndividualModel,
         "global_model": GlobalModel,
+        "global_model_pers": GlobalModelPersonalized,
         "fed_model": FedModel,
     }
 

@@ -7,7 +7,7 @@ from typing import Any, List, Dict
 from keras.models import Sequential
 from keras.layers import Dense
 from keras import optimizers
-from keras import backend as K # for seed
+from keras import backend as K  # for seed
 from OutputLayer import OutputLayer
 from sklearn.metrics import (
     roc_curve,
@@ -62,14 +62,12 @@ class TestCallback(keras.callbacks.Callback):
                 json.dump(metrics, f, indent=4)
         print('\nTesting metrics: {}\n'.format(metrics))
         return metrics
-        
 
 
 class BaseModel(ABC):
 
-    def __init__(
-        self, parameter_config: Dict[str, float]):
-    
+    def __init__(self, parameter_config: Dict[str, float]):
+
         self.layers = parameter_config["layers"]
         self.input_dim = parameter_config["input_dim"]
         self.activation = parameter_config["activation"]

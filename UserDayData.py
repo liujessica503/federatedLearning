@@ -20,6 +20,9 @@ class UserDayData:
     def get_user_day_pairs(self):
         return self.user_day_pairs
 
+    def get_users(self):
+        return [x[0] for x in self.user_day_pairs]
+
     # get by users
 
     def _get_rows_for_users(self, users: List[int])->List[int]:
