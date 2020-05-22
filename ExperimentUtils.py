@@ -31,7 +31,7 @@ class ExperimentUtils:
         test_callback = 0
     )->Dict:
         model.train(train_data, test_data, test_callback)
-        metrics = model.evaluate(test_data, train_data)
+        metrics = model.evaluate(test_data)
         return metrics
 
     @staticmethod

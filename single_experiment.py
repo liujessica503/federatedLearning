@@ -31,7 +31,7 @@ def main():
 
     results['lr'] = parameter_dict['learn_rate']
     
-    ind_results = model.individual_evaluate(test_data, train_data)
+    ind_results = model.individual_evaluate(test_data)
 
     if parameter_dict["plot_auc"]:
 
