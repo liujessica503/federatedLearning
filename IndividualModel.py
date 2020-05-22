@@ -22,6 +22,7 @@ class IndividualModel(BaseModel):
 
             # get user-specific data
             X_train, Y_train = user_day_data.get_data_for_users([user])
+
             user_scaler = StandardScaler().fit(X_train)
             self.scalers_dict[user] = user_scaler
             X_train = user_scaler.transform(X_train)
@@ -52,11 +53,11 @@ class IndividualModel(BaseModel):
                 callbacks= callback_list
             )    
 
-            self.model_weights_dict[user] = self.model.get_weights()           
+            self.model_weights_dict[user] = self.model.get_weights()      
 
         self.is_trained = True
 
-    def predict(self, user_day_data: Any, userID = None)->List[float]:
+    def predict(self, test_user_day_data: Any, train_user_day_data: Any, userID = None)->List[float]:
         # self.check_is_trained()
 
 
@@ -65,7 +66,7 @@ class IndividualModel(BaseModel):
         if self.is_trained == False:
             self.model.set_weights(self.model.get_weights())
             user_prediction_scaler = self.scalers_dict[userID]
-            X_test, Y_test = user_day_data.get_data_for_users([userID])
+            X_test, Y_test = test_user_day_data.get_data_for_users([userID])
             X_test = user_prediction_scaler.transform(X_test)
             prediction = self.model.predict(X_test)
             return prediction, Y_test
@@ -75,20 +76,28 @@ class IndividualModel(BaseModel):
         # return a dictionary of predictions containing prediction for each user
         elif self.is_trained == True:
             predictions = np.empty(
-                [len(user_day_data.get_y()), self.output_layer.length]
+                [len(test_user_day_data.get_y()), self.output_layer.length]
             )
             pred_users = np.unique(
-                [x[0] for x in user_day_data.get_user_day_pairs()]
+                [x[0] for x in test_user_day_data.get_user_day_pairs()]
             )
 
             for user in pred_users:
                 self.model.set_weights(self.model_weights_dict[user])
                 user_prediction_scaler = self.scalers_dict[user]
-                X_test, Y_test = user_day_data.get_data_for_users([user])
+                X_test, Y_test = test_user_day_data.get_data_for_users([user])
                 X_test = user_prediction_scaler.transform(X_test)
                 prediction = self.model.predict(X_test)
+
+                X_train, Y_train = train_user_day_data.get_data_for_users([user])
+
+                # TESTING IF WE JUST USE THE AVERAGE training mood for cv2
+                # rewrite this user's predictions to be the
+                # average training mood in first 142 days for this user
+                # prediction =  np.array([[np.mean(Y_train)] * len(prediction)]).transpose()
+
                 predictions[
-                    user_day_data._get_rows_for_users([user]), :
+                    test_user_day_data._get_rows_for_users([user]), :
                 ] = prediction
             return predictions
 

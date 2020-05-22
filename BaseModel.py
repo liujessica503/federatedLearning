@@ -129,15 +129,15 @@ class BaseModel(ABC):
         raise NotImplementedError
 
     # including user for IndividualModel
-    def evaluate(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
+    def evaluate(self, test_user_day_data: Any, train_user_day_data: Any, userID = None)-> Dict[str, float]:
         if self.output_layer.NAME == "BinaryLayer":
-            return self._evaluate_binary(test_user_day_data, userID)
+            return self._evaluate_binary(test_user_day_data, train_user_day_data, userID)
         elif self.output_layer.NAME == "RegressionLayer":
-            return self._evaluate_regression(test_user_day_data, userID)
+            return self._evaluate_regression(test_user_day_data, train_user_day_data, userID)
         elif self.output_layer.NAME == "MultiClassLayer":
-            return self._evaluate_multiclass(test_user_day_data, userID)
+            return self._evaluate_multiclass(test_user_day_data, train_user_day_data, userID)
 
-    def _evaluate_binary(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
+    def _evaluate_binary(self, test_user_day_data: Any, train_user_day_data: Any, userID = None)-> Dict[str, float]:
         
         # if we're in a callback for the indivdual model
         if self.is_trained == False and userID:
@@ -149,7 +149,7 @@ class BaseModel(ABC):
         # if we're done training (not in a callback) for the individual model
         # or for global and federated models
         else: 
-            predictions = self.predict(test_user_day_data)
+            predictions = self.predict(test_user_day_data, train_user_day_data)
             test_labels = test_user_day_data.get_y()
             # evaluate performance
             score = self.get_score(test_user_day_data)
@@ -192,7 +192,7 @@ class BaseModel(ABC):
         }
         return metrics
 
-    def _evaluate_regression(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
+    def _evaluate_regression(self, test_user_day_data: Any, train_user_day_data: Any, userID = None)-> Dict[str, float]:
         predictions = None
         # for individual model, use individual model's predict function
         if userID:
@@ -212,9 +212,12 @@ class BaseModel(ABC):
             elif self.is_trained == True:
                 predictions = self.predict(test_user_day_data, userID)
                 predictions = [10 if x > 10 else 1 if x < 1 else x for x in predictions]
+
+                ## SHOULD WE HAVE mse = HERE??
+
         # for global and federated models, use the respective predict function
         else: 
-            predictions = self.predict(test_user_day_data)
+            predictions = self.predict(test_user_day_data, train_user_day_data)
             predictions = [10 if x > 10 else 1 if x < 1 else x for x in predictions]
             test_labels = test_user_day_data.get_y()
             mse = mean_squared_error(test_labels, predictions)
@@ -245,17 +248,17 @@ class BaseModel(ABC):
             "accuracy": accuracy
         }
 
-    def individual_evaluate(self, user_day_data: Any)->Dict[float, str]:
+    def individual_evaluate(self, test_user_day_data: Any, train_user_day_data: Any)->Dict[float, str]:
         # self.check_is_trained()
 
         eval_users = np.unique(
-            [x[0] for x in user_day_data.get_user_day_pairs()]
+            [x[0] for x in test_user_day_data.get_user_day_pairs()]
         )
         metrics_dict = {}
 
         for user in eval_users:
-            ind_user_day_data = user_day_data.get_subset_for_users([user])
-            metrics = self.evaluate(ind_user_day_data)
+            ind_user_day_data = test_user_day_data.get_subset_for_users([user])
+            metrics = self.evaluate(ind_user_day_data, train_user_day_data)
             try:
                 del metrics["FPR"]
                 del metrics["TPR"]
