@@ -11,6 +11,7 @@ from IndividualModel import IndividualModel
 from GlobalModel import GlobalModel
 from GlobalModelPersonalized import GlobalModelPersonalized
 from FedModel import FedModel
+from FedModelPersonalized import FedModelPersonalized
 from BaseModel import BaseModel
 
 
@@ -21,6 +22,7 @@ class ExperimentUtils:
         "global_model": GlobalModel,
         "global_model_pers": GlobalModelPersonalized,
         "fed_model": FedModel,
+        "fed_model_pers": FedModelPersonalized
     }
 
     @staticmethod
@@ -28,7 +30,7 @@ class ExperimentUtils:
         model: BaseModel,
         train_data: UserDayData,
         test_data: UserDayData,
-        test_callback = 0
+        test_callback=0
     )->Dict:
         model.train(train_data, test_data, test_callback)
         metrics = model.evaluate(test_data)
