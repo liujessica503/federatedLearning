@@ -13,6 +13,7 @@ from GlobalModelPersonalized import GlobalModelPersonalized
 from FedModel import FedModel
 from FedModelPersonalized import FedModelPersonalized
 from MovingMeanModel import MovingMeanModel
+from BaselineModel import BaselineModel
 from BaseModel import BaseModel
 
 
@@ -24,7 +25,8 @@ class ExperimentUtils:
         "global_model_pers": GlobalModelPersonalized,
         "fed_model": FedModel,
         "fed_model_pers": FedModelPersonalized,
-        "moving_mean_model": MovingMeanModel
+        "moving_mean_model": MovingMeanModel,
+        "baseline": BaselineModel,
     }
 
     @staticmethod

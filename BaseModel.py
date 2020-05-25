@@ -68,53 +68,64 @@ class BaseModel(ABC):
 
     def __init__(self, parameter_config: Dict[str, float]):
 
-        self.layers = parameter_config["layers"]
-        self.input_dim = parameter_config["input_dim"]
-        self.activation = parameter_config["activation"]
-        self.lr = parameter_config["learn_rate"]
-        self.epochs = parameter_config["epochs"]
-        self.batch_size = parameter_config["batch_size"]
-        self.verbose = parameter_config["verbose"]
         self.output_path = parameter_config["output_path"]
-
-        # set seeds
-        self.seed = parameter_config["seed"] * 1234567
-        random.seed(self.seed)  
-        self.np_seed = self.seed * 2
-        np.random.seed(self.np_seed)
-        tf.set_random_seed(self.seed)
-
-        session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
-        sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
-        K.set_session(sess)
-
-        self.model = Sequential()
         self.output_layer = OutputLayer.from_config(
-            parameter_config["output_layer"]
-        )
-        self.model.add(
-            Dense(
-                self.layers[0],
-                input_dim=self.input_dim,
-                activation=self.activation,
+                parameter_config["output_layer"]
             )
-        )
-        for i in range(1, len(self.layers)):
-            self.model.add(Dense(self.layers[i], activation=self.activation))
-        self.model.add(self.output_layer.layer)
-        self.model.compile(
-            loss=self.output_layer.loss,
-            optimizer=optimizers.Adam(
-                lr=self.lr,
-                beta_1=0.9,
-                beta_2=0.999,
-                decay=0.0,
-                amsgrad=False,
-            ),
-            metrics=self.output_layer.metrics,
-        )
-        self.initialization = self.model.get_weights()
-        self.is_trained = False
+
+        if parameter_config['model_type'] != 'baseline' and parameter_config['model_type'] != 'moving_mean_model':
+
+            import tensorflow as tf
+            from keras.models import Sequential
+            from keras.layers import Dense
+            from keras import optimizers
+            from keras import backend as K  # for seed
+
+
+            self.layers = parameter_config["layers"]
+            self.input_dim = parameter_config["input_dim"]
+            self.activation = parameter_config["activation"]
+            self.lr = parameter_config["learn_rate"]
+            self.epochs = parameter_config["epochs"]
+            self.batch_size = parameter_config["batch_size"]
+            self.verbose = parameter_config["verbose"]
+
+            # set seeds
+            self.seed = parameter_config["seed"] * 1234567
+            random.seed(self.seed)  
+            self.np_seed = self.seed * 2
+            np.random.seed(self.np_seed)
+            tf.set_random_seed(self.seed)
+
+            session_conf = tf.ConfigProto(intra_op_parallelism_threads=1, inter_op_parallelism_threads=1)
+            sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+            K.set_session(sess)
+
+            self.model = Sequential()
+            
+            self.model.add(
+                Dense(
+                    self.layers[0],
+                    input_dim=self.input_dim,
+                    activation=self.activation,
+                )
+            )
+            for i in range(1, len(self.layers)):
+                self.model.add(Dense(self.layers[i], activation=self.activation))
+            self.model.add(self.output_layer.layer)
+            self.model.compile(
+                loss=self.output_layer.loss,
+                optimizer=optimizers.Adam(
+                    lr=self.lr,
+                    beta_1=0.9,
+                    beta_2=0.999,
+                    decay=0.0,
+                    amsgrad=False,
+                ),
+                metrics=self.output_layer.metrics,
+            )
+            self.initialization = self.model.get_weights()
+            self.is_trained = False
 
     @abstractmethod
     def train(self, user_day_data: Any) -> None:
