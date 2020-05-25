@@ -43,7 +43,7 @@ class GlobalModelPersonalized(BaseModel):
     def __init__(self, parameter_config: Dict[str, float]):
         super().__init__(parameter_config)
         self.parameter_config = parameter_config
-        self.num_personalized_units = 2
+        self.num_personalized_units = 1
 
     def train(
         self, user_day_data: Any, test_user_day_data: Any, test_callback=0
@@ -95,6 +95,8 @@ class GlobalModelPersonalized(BaseModel):
             ),
             metrics=self.output_layer.metrics,
         )
+
+        self.initialization = self.model.get_weights()
 
         self.scaler = StandardScaler().fit(user_day_data.get_X())
         # Scale the train set
