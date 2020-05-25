@@ -15,8 +15,6 @@ from OutputLayer import OutputLayer
 from sklearn.preprocessing import StandardScaler
 from typing import Any, Dict, List
 
-from BaseModel import BaseModel, TestCallback
-
 
 class PersonalizedInput(Layer):
 
