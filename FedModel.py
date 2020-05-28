@@ -91,8 +91,11 @@ class FedModel(BaseModel):
                     client_num_training_points[i] = len(Y_train)
 
                 if self.global_aggregator == GlobalAggregatorEnum.FEDAVG.value:
-                    new_weights = self._fed_avg(
-                        client_weights, client_num_training_points
+                    new_weights, avg_weights = self._fed_avg(
+                        client_weights=client_weights, 
+                        client_num_training_points=client_num_training_points,
+                        old_weights=self.full_model_weights,
+                        fed_stepsize=self.fed_stepsize,
                     )
                 elif self.global_aggregator == GlobalAggregatorEnum.ADAM.value:
                     counter += 1
@@ -116,8 +119,6 @@ class FedModel(BaseModel):
             if test_callback == 1:
                 self.model.set_weights(self.full_model_weights)
                 metrics = self.evaluate(test_user_day_data)
-                # import pdb
-                # pdb.set_trace()
 
                 with open(sys.argv[1]) as file:
                     parameter_dict = json.load(file)
@@ -220,22 +221,36 @@ class FedModel(BaseModel):
     def _fed_avg(
         client_weights: List[List[Any]],
         client_num_training_points: List[int],
+        old_weights: List[Any],
+        fed_stepsize: float,
     )->List[Any]:
         num_training_points = sum(client_num_training_points)
+
         for i in range(len(client_weights)):
             for j in range(len(client_weights[0])):
                 client_weights[i][j] = client_weights[i][
                     j
                 ] * client_num_training_points[i] / num_training_points
 
-        new_weights = []
+        avg_weights = []
         for j in range(len(client_weights[0])):
             tmp = client_weights[0][j]
             for i in range(1, len(client_weights)):
                 tmp = tmp + client_weights[i][j]
-            new_weights.append(tmp)
+            avg_weights.append(tmp)
 
-        return new_weights
+        n_vec = len(old_weights)
+        update_vector = [
+            old_weights[i] - avg_weights[i] for i in range(n_vec)
+        ]
+        
+        new_weights = [
+            old_weights[i] - fed_stepsize *
+            update_vector[i] for i in range(n_vec)
+        ]
+
+        return new_weights, avg_weights
+        
 
     @staticmethod
     def _fed_adam(
@@ -250,8 +265,8 @@ class FedModel(BaseModel):
         t: int,
     )->List[Any]:
         n_vec = len(old_weights)
-        avg_weights = FedModel._fed_avg(
-            client_weights, client_num_training_points
+        fed_avg_weights, avg_weights = FedModel._fed_avg(
+            client_weights, client_num_training_points, old_weights, fed_stepsize
         )
         update_vector = [
             old_weights[i] - avg_weights[i] for i in range(n_vec)
