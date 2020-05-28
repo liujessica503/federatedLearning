@@ -99,7 +99,6 @@ class FedModelPersonalized(FedModel.FedModel):
             metrics=self.output_layer.metrics,
         )
 
-        import pdb; pdb.set_trace()
         self.model.predict(np.zeros([1, self.input_dim + 1]))
         self.initialization = self.model.get_weights()
 
