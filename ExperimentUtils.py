@@ -26,7 +26,7 @@ class ExperimentUtils:
         "fed_model": FedModel,
         "fed_model_pers": FedModelPersonalized,
         "moving_mean_model": MovingMeanModel,
-        "baseline": BaselineModel,
+        "baseline_model": BaselineModel,
     }
 
     @staticmethod
@@ -97,7 +97,7 @@ class ExperimentUtils:
         except KeyError:
             raise KeyError(
                 'model_type in config json must be one of: "individual_model",'
-                '"global_model", "fed_model"'
+                '"global_model", "fed_model", "fed_model_pers", "global_model_pers", "moving_mean_model", "baseline_model"' 
             )
 
     @staticmethod
