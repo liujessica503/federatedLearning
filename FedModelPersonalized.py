@@ -171,11 +171,11 @@ class FedModelPersonalized(FedModel.FedModel):
                     client_num_training_points[i] = len(Y_train)
 
                 if self.global_aggregator == FedModel.GlobalAggregatorEnum.FEDAVG.value:
-                    new_weights = self._fed_avg(
-                        client_weights,
-                        client_num_training_points,
-                        self.full_model_weights,
-                        self.fed_stepsize
+                    new_weights, avg_weights = self._fed_avg(
+                        client_weights=client_weights, 
+                        client_num_training_points=client_num_training_points,
+                        old_weights=self.full_model_weights,
+                        fed_stepsize=self.fed_stepsize,
                     )
                 elif self.global_aggregator == FedModel.GlobalAggregatorEnum.ADAM.value:
                     counter += 1
