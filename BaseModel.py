@@ -35,12 +35,8 @@ class TestCallback(keras.callbacks.Callback):
         self.userID = userID
 
     def on_epoch_end(self, epoch, logs={}):
-        with open(sys.argv[1]) as file:
-            parameter_dict = json.load(file)
-            loss_type = parameter_dict["output_layer"]["loss_type"]
-            model_type = parameter_dict['model_type']
 
-        if model_type == 'individual_model':
+        if self.parentModel.model_type == 'individual_model':
             metrics = self.parentModel.evaluate(self.test_user_day_data, userID = self.userID)
             metrics['user'] = int(self.userID)
 
@@ -49,14 +45,14 @@ class TestCallback(keras.callbacks.Callback):
             metrics = self.parentModel.evaluate(self.test_user_day_data)
 
         # write the test results to file (append after each epoch)
-        callback_file_name = str(parameter_dict["output_path"] +
-            "_(" + parameter_dict['model_type'] + ")") + "test_per_epoch"
+        callback_file_name = str(self.parentModel.output_path +
+            "_(" + self.parentModel.model_type + ")") + "test_per_epoch"
 
-        if loss_type == 'regression':
+        if self.parentModel.loss_type == 'regression':
             with open(callback_file_name + ".json", "a") as f:
                 #f.write(str(metrics['mse']) + '\n')
                 json.dump(metrics, f, indent=4)
-        elif loss_type == 'classification':
+        elif self.parentModel.loss_type == 'classification':
             with open(callback_file_name + ".json", "a") as f:
                 #f.write(str(metrics['AUC']) + '\n')
                 json.dump(metrics, f, indent=4)
@@ -72,8 +68,10 @@ class BaseModel(ABC):
         self.output_layer = OutputLayer.from_config(
                 parameter_config["output_layer"]
             )
+        self.model_type = parameter_config['model_type']
+        self.loss_type = parameter_config["output_layer"]["loss_type"]
 
-        if parameter_config['model_type'] != 'baseline' and parameter_config['model_type'] != 'moving_mean_model':
+        if self.model_type != 'baseline' and self.model_type != 'moving_mean_model':
 
             import tensorflow as tf
             from keras.models import Sequential
