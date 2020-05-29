@@ -172,7 +172,10 @@ class FedModelPersonalized(FedModel.FedModel):
 
                 if self.global_aggregator == FedModel.GlobalAggregatorEnum.FEDAVG.value:
                     new_weights = self._fed_avg(
-                        client_weights, client_num_training_points
+                        client_weights,
+                        client_num_training_points,
+                        self.full_model_weights,
+                        self.fed_stepsize
                     )
                 elif self.global_aggregator == FedModel.GlobalAggregatorEnum.ADAM.value:
                     counter += 1
