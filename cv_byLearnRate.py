@@ -5,10 +5,14 @@ import datetime
 
 # import user-defined functions
 
-from BaseModel import BaseModel
-from GlobalModel import GlobalModel
 from IndividualModel import IndividualModel
+from GlobalModel import GlobalModel
+from GlobalModelPersonalized import GlobalModelPersonalized
 from FedModel import FedModel
+from FedModelPersonalized import FedModelPersonalized
+from MovingMeanModel import MovingMeanModel
+from BaselineModel import BaselineModel
+from BaseModel import BaseModel
 from UserDayData import UserDayData
 from collections import defaultdict
 from ExperimentUtils import ExperimentUtils
@@ -100,29 +104,44 @@ def main():
     # get the name of the model from the user-inputted json file
     # and match it to the corresponding model object
     model_registry = {
-        'individual_model': IndividualModel,
-        'global_model': GlobalModel,
-        'fed_model': FedModel,
+        "individual_model": IndividualModel,
+        "global_model": GlobalModel,
+        "global_model_pers": GlobalModelPersonalized,
+        "fed_model": FedModel,
+        "fed_model_pers": FedModelPersonalized,
+        "moving_mean_model": MovingMeanModel,
+        "baseline_model": BaselineModel,
     }
     
     if model_registry.get(parameter_dict.get('model_type')) is None:
-        raise KeyError("model_type in .json must be one of: 'individual_model', 'global_model', 'fed_model'")
+        raise KeyError(
+                'model_type in config json must be one of: "individual_model",'
+                '"global_model", "fed_model", "fed_model_pers", "global_model_pers", "moving_mean_model", "baseline_model"' 
+            )
     else:
         model_class = model_registry[parameter_dict['model_type']]
 
     k = 3
-      #lrs = [0.00001, 0.00005, 0.005, 0.01, 0.03, 0.05] # an hour on jessica's computer
+    #lrs = [10**-5, 10**-4, 10**-3, 10**-2, 10**-1]
+    #lrs = [0.00001, 0.00005, 0.005, 0.01, 0.03, 0.05] # an hour on jessica's computer
     # lrs = [0.02, 0.03, 0.04, 0.06] # 30 min on jessica's computer
     # lrs = np.linspace(0,1,50, endpoint = False) # 2.55 hours for global model on (0,1,50) on jessica's computer
     # lrs = np.linspace(0,1,25, endpoint = False) # 3.6 hours for individiual model on (0,1,25) on jessica's computer, 2.65 hours for global model + fed model on (0,1,25)
-    # lrs = np.linspace(0,0.25,25, endpoint = False)
-    #lrs = np.arange(0.05, 0.3,0.01)
-    #lrs = [1e-10, 1e-08, 1e-06, 1e-05, 0.0001, 0.0002, 0.0004, 0.0006, 0.0008, 0.001, 0.002, 0.004, 0.006, 0.008, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1]
-    lrs = [1e-10, 1e-08, 1e-06, 1e-05]
-    #lrs = np.logspace(-5, -1, base = 10, num = 25)
+    # lrs = np.linspace(0.25,0.5,25, endpoint = False)
+    #lrs = np.arange(0.3, 0.5,0.01)
+    #lrs = np.round(np.logspace(-3, -1, base = 2, num = 25),2)
+    #lrs = np.arange(0.05, 0.1, 0.01)
+    #lrs = np.arange(0.002,0.011, 0.002)
+    lrs = [0.0001, 0.0004, 0.001]
+    #lrs = [0.01, 0.012, 0.014, 0.016, 0.018]
+    #lrs = np.arange(0.05, 0.15, 0.01)
+    #lrs = np.arange(0.1, 0.2,0.01)
 
     # tune number of epochs jointly with learning rates
     epochs = np.arange(10,80,20)
+    #epochs = np.concatenate([np.arange(5,25,5), [40,50,60]])
+    #epochs = [40, 50]
+    #epochs = np.arange(20,50,10)
 
 
     train_data, test_data = ExperimentUtils.simple_train_test_split(parameter_dict)
