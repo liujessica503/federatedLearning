@@ -249,7 +249,7 @@ class FedModel(BaseModel):
             update_vector[i] for i in range(n_vec)
         ]
 
-        return new_weights
+        return new_weights, avg_weights
         
 
     @staticmethod
