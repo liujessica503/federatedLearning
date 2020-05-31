@@ -1,3 +1,10 @@
+# outputs a nested dictionary with the following keys, in order:
+# epoch
+# clients per round
+# local updates
+# fed_stepsize
+# learning rate: AUC or mse
+
 import json
 import sys
 import numpy as np
