@@ -32,7 +32,8 @@ def main():
         model, train_data, test_data, parameter_dict['test_callback']
     )
 
-    results['lr'] = parameter_dict['learn_rate']
+    if parameter_dict['model_type'] != 'baseline' and parameter_dict['model_type'] != 'moving_mean_model':
+        results['lr'] = parameter_dict['learn_rate']
     
     ind_results = model.individual_evaluate(test_data)
 
