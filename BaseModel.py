@@ -5,7 +5,7 @@ import os
 from abc import ABC, abstractmethod
 from typing import Any, List, Dict
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Dropout
 from keras import optimizers
 from keras import backend as K  # for seed
 from OutputLayer import OutputLayer
@@ -100,6 +100,8 @@ class BaseModel(ABC):
             K.set_session(sess)
 
             self.model = Sequential()
+
+            self.model.add(Dropout(0.5, input_shape=(self.input_dim,)))
             
             self.model.add(
                 Dense(
@@ -207,8 +209,6 @@ class BaseModel(ABC):
         if userID:
             # if we're in a callback, get a prediction for a single user
             if self.is_trained == False:
-                # import pdb 
-                # pdb.set_trace()
                 print('running individual model\'s predict function')
                 # use individual model's predict function
                 # when we're in a callback, returns prediction and observed test labels 
@@ -235,8 +235,6 @@ class BaseModel(ABC):
 
     def _evaluate_multiclass(self, test_user_day_data: Any, userID = None)-> Dict[str, float]:
         if userID:
-            # import pdb
-            # pdb.set_trace()
             print('running individual model\'s predict function')
             # use individual model's predict function
             predictions = self.predict(test_user_day_data, userID)
