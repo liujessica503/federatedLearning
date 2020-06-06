@@ -100,8 +100,6 @@ class BaseModel(ABC):
             K.set_session(sess)
 
             self.model = Sequential()
-
-            self.model.add(Dropout(0.5, input_shape=(self.input_dim,)))
             
             self.model.add(
                 Dense(
@@ -110,6 +108,10 @@ class BaseModel(ABC):
                     activation=self.activation,
                 )
             )
+
+            # dropout on hidden layer
+            self.model.add(Dropout(0.5))
+
             for i in range(1, len(self.layers)):
                 self.model.add(Dense(self.layers[i], activation=self.activation))
             self.model.add(self.output_layer.layer)
