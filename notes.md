@@ -1,7 +1,14 @@
+6/10/2020 trying WESAD data
+downloaded cvxEDA.py from https://github.com/lciti/cvxEDA
+conda install -c conda-forge cvxopt
+
+Questions: Change Downloads/WESAD_Data_Scripts/WESAD_Scripts/data_wrangling.py WINDOW_IN_SECONDS = 0.25 instead of 30?
+
+
 5/19/2020
 Jack and I trying to figure out why running experiments locally for fed and individual give us way different results than running on great lakes
 module load python3.6-anaconda
-source activate fedModelSetup (already ran conda create -n fedModelSetup and conda install tensorflow==1.14.0 and conda install scikit-learn and conda install matplotlib)
+source activate fedModelSetup (already ran conda create -n fedModelSetup and conda install tensorflow==1.14.0 and conda install scikit-learn and conda install matplotlib and conda install pandas=1.0.1 (chose this version of pandas to match local))
 conda list (shows what's installed)
 We think the stuff I installed using pip3 is being used
 
