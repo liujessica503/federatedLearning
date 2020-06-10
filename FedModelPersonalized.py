@@ -126,6 +126,7 @@ class FedModelPersonalized(FedModel.FedModel):
                     self.unique_users, self.clients_per_round
                 )
 
+                '''
                 # write the clients we're sampling to file
                 with open(sys.argv[1]) as file:
                     parameter_dict = json.load(file)
@@ -135,6 +136,7 @@ class FedModelPersonalized(FedModel.FedModel):
                     file_writer = csv.writer(csvfile, delimiter=',')
                     file_writer.writerow(clients)
                 # end writing
+                '''
 
                 for i in range(self.clients_per_round):
                     # if self.verbose > 0:
@@ -207,8 +209,6 @@ class FedModelPersonalized(FedModel.FedModel):
             if test_callback == 1:
                 self.model.set_weights(self.full_model_weights)
                 metrics = self.evaluate(test_user_day_data)
-                # import pdb
-                # pdb.set_trace()
 
                 with open(sys.argv[1]) as file:
                     parameter_dict = json.load(file)

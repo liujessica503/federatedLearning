@@ -56,6 +56,7 @@ class FedModel(BaseModel):
                     self.unique_users, self.clients_per_round
                 )
 
+                '''
                 # write the clients we're sampling to file
                 with open(sys.argv[1]) as file:
                     parameter_dict = json.load(file)
@@ -65,6 +66,7 @@ class FedModel(BaseModel):
                     file_writer = csv.writer(csvfile, delimiter=',')
                     file_writer.writerow(clients)
                 # end writing
+                '''
 
                 for i in range(self.clients_per_round):
                     if self.verbose > 0:
