@@ -1,0 +1,28 @@
+{
+	"model_type": "global_model",
+	"seed": 360,
+	"input_directory": "/Users/jessica/Downloads/WESAD_Data_Scripts/WESAD_Scripts/data/WESAD/",
+	"output_path": "/Users/jessica/Downloads/WESAD_Data_Scripts/results/test.csv",
+	"cv": 0,
+	"input_dim": 8,
+	"layers": [8, 4],
+	"activation": "relu",
+	"output_layer": {
+		"loss_type": "classification",
+		"classification_thresholds": [0]
+	},
+	"learn_rate": 0.08,
+	"batch_size": 800,
+	"epochs": 10,
+	"test_callback": 0,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "../cv2_fed_binary.png",
+	"fed_model_parameters": {
+		"clients_per_round": 80,
+		"local_updates_per_round": 4,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 1
+	}
+}
