@@ -11,7 +11,7 @@ import os
 import re
 # just doing 0-1 classification on WESAD data
 # import user-defined function
-# from get_mood_class import get_mood_class
+from get_mood_class import get_mood_class
 
 
 def split_train_test_global(
@@ -47,15 +47,11 @@ def split_train_test_global(
         amusement_data_test = amusement_data.iloc[amusement_data.shape[0] * 2 //3:, :]
 
         train_data = pd.concat([baseline_data_train, stress_data_train, amusement_data_train])
-        train_data['label'] = 0
-        train_data.loc[train_data['2'] == 1, 'label'] = 1
         test_data = pd.concat([baseline_data_test, stress_data_test, amusement_data_test])
-        test_data['label'] = 0
-        test_data.loc[test_data['2'] == 1, 'label'] = 1
 
-        train_data = train_data.drop(['Unnamed: 0','0','1','2'], axis = 1)
-        test_data = test_data.drop(['Unnamed: 0','0','1','2'], axis = 1)
-
+        train_data = get_mood_class(train_data, prediction_classes, loss_type)
+        test_data = get_mood_class(test_data, prediction_classes, loss_type)
+        
         train_data_dict[f] = train_data
         train_days = train_data_dict[f].index
         train_pairs_dict[f] = [(int(userID), int(x)) for x in train_days]
@@ -64,15 +60,6 @@ def split_train_test_global(
         test_days = test_data_dict[f].index
         test_pairs_dict[f] = [(int(userID), int(x)) for x in test_days]
 
-        '''
-        train_data_dict[f] = pd.read_csv(f).iloc[0:71 * cv, :]
-        train_days = pd.read_csv(f).iloc[0:71 * cv, 0]
-        train_pairs_dict[f] = [(int(userID), int(x[:4])) for x in train_days]
-
-        test_data_dict[f] = pd.read_csv(f).iloc[71 * cv:, :]
-        test_days = pd.read_csv(f).iloc[71 * cv:, 0]
-        test_pairs_dict[f] = [(int(userID), int(x[:4])) for x in test_days]
-        '''
 
     train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
     train_pairs = [train_pairs_dict[f] for f in files_in_folder]
