@@ -11,6 +11,7 @@ import pickle
 import os
 import re
 from collections import OrderedDict
+import gzip
 # just doing 0-1 classification on WESAD data
 # import user-defined function
 # from get_mood_class import get_mood_class
@@ -40,19 +41,15 @@ def write_chest_measurements(data):
         chest_measurements[idx] = values
     return chest_measurements
 
-
-
-def split_train_test_global(
-    directory, cv=0, prediction_classes=0, loss_type='classification'
-):
-    train_data_dict = {}
-    train_pairs_dict = {}
-
-    test_data_dict = {}
-    test_pairs_dict = {}
-
-    # get all data files in the input directory
-    list_of_files = ['S2/S2.pkl', 'S3/S3.pkl']
+def preprocess_measurements(directory):
+    '''
+    save data files in our desired format
+    '''
+    # raw data files
+    list_of_files = ['S3/S3.pkl', 'S4/S4.pkl', 
+    'S5/S5.pkl', 'S6/S6.pkl', 'S7/S7.pkl', 'S8/S8.pkl', 'S9/S9.pkl', 
+    'S10/S10.pkl', 'S11/S11.pkl', 'S13/S13.pkl', 'S14/S14.pkl',
+    'S15/S15.pkl','S16/S16.pkl','S17/S17.pkl']
 
     list_of_files = [str(directory + x) for x in list_of_files]
 
@@ -65,6 +62,39 @@ def split_train_test_global(
         chest_measurements = write_chest_measurements(raw_data)
 
         data = pd.DataFrame.from_dict(chest_measurements, orient='index', columns=['Label','ECG', 'EMG', 'EDA', 'Temp', 'Resp', 'ACC_x', 'ACC_y', 'ACC_z'])
+
+        data_array = data.to_numpy()
+
+        f = gzip.GzipFile(directory + "/S" + str(userID) + "/" + "S" + str(userID) + "_chest_rawData.npy.gz", "w")
+        np.save(file=f, arr=data_array)
+        f.close()
+        print("file for user " + userID + " written")
+
+    return
+
+def split_train_test_global(
+    directory, cv=0, prediction_classes=0, loss_type='classification'
+):
+    train_data_dict = {}
+    train_pairs_dict = {}
+
+    test_data_dict = {}
+    test_pairs_dict = {}
+
+    list_of_files = ['S2/', 'S3/', 'S4/', 
+    'S5/', 'S6/', 'S7/', 'S8/', 'S9/', 
+    'S10/', 'S11/', 'S13/', 'S14/',
+    'S15/','S16/','S17/']
+
+    list_of_files = [str(directory + x) for x in list_of_files]
+
+    for f in list_of_files:
+        # get subject ID from files named like /path/S10/S10.pkl, where 10 is the subject ID
+        userID = re.match(".*\/(S)([0-9]+)", f).group(2)
+
+        dataFile = gzip.GzipFile(f + "S" + str(userID) + "_chest_rawData.npy.gz", "r")
+        dataNp = np.load(dataFile)
+        data = pd.DataFrame(dataNp, columns = ['Label','ECG', 'EMG', 'EDA', 'Temp', 'Resp', 'ACC_x', 'ACC_y', 'ACC_z'])
 
         # according to labels in wesad_readme.pdf, 1 = baseline, 2 = stress, 3 = amusement
         baseline_data = data.loc[data['Label'] == 1]
@@ -90,16 +120,13 @@ def split_train_test_global(
         test_data.loc[test_data['Label'] == 2, 'Label'] = 1
         test_data.loc[test_data['Label'] == 3, 'Label'] = 1
 
-        train_data_dict[f.name] = train_data
-        train_days = train_data_dict[f.name].index
-        train_pairs_dict[f.name] = [(int(userID), int(x)) for x in train_days]
+        train_data_dict[f] = train_data
+        train_days = train_data_dict[f].index
+        train_pairs_dict[f] = [(int(userID), int(x)) for x in train_days]
 
-        test_data_dict[f.name] = test_data
-        test_days = test_data_dict[f.name].index
-        test_pairs_dict[f.name] = [(int(userID), int(x)) for x in test_days]
-
-    import pdb
-    pdb.set_trace()
+        test_data_dict[f] = test_data
+        test_days = test_data_dict[f].index
+        test_pairs_dict[f] = [(int(userID), int(x)) for x in test_days]
 
     train_data = pd.concat(train_data_dict[f] for f in list_of_files)
     train_pairs = [train_pairs_dict[f] for f in list_of_files]
@@ -127,3 +154,4 @@ def split_train_test_global(
         test_labels,
         test_user_day_pairs,
     )
+
