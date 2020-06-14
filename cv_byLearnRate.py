@@ -38,7 +38,7 @@ def run_cv(
     parameter_dict: Dict[str, float]
 )->Dict[str, float]:
 
-    num_val_samples = (71 * parameter_dict['cv']) // k
+    num_val_samples = 50 // k
 
     # save metrics in dictionary
     metrics_by_lr = defaultdict(list)
@@ -89,7 +89,6 @@ def run_cv(
                             model = model_class(
                                 parameter_config=parameter_dict,
                             )
-
                             results = ExperimentUtils.run_single_experiment(
                                 model, train_fold, val_fold)
 
@@ -190,12 +189,15 @@ def main():
 
     k = 3
 
-    # change 5, 10, 25, 50 % of users
-    clients_per_round_list = [20, 40, 100, 200]
+    # 5, 10, 25, 50 % of users
+    #clients_per_round_list = [20, 40, 100, 200]
+    clients_per_round_list = [5, 10, 15, 25]
 
-    local_updates_per_round_list = [1, 2, 4, 6, 8, 10, 12]
+    #local_updates_per_round_list = [2, 4, 6, 8]
+    local_updates_per_round_list = [2, 5, 10]
 
-    fed_stepsize_list = [1e-05, 1e-03, 0.1, 0.2, 0.5, 1]
+    #fed_stepsize_list = [0.1, 0.5, 1]
+    fed_stepsize_list = [1]
 
     #lrs = [0.00001, 0.00005, 0.005, 0.01, 0.03, 0.05] # an hour on jessica's computer
     # lrs = [0.02, 0.03, 0.04, 0.06] # 30 min on jessica's computer
@@ -211,10 +213,10 @@ def main():
     lrs = [1e-10, 1e-08, 1e-06, 1e-05]
 
     # tune number of epochs jointly with learning rates
-    epochs = np.arange(10,80,20)
+    #epochs = np.arange(10,80,20)
+    #epochs = np.arange(30,80,20)
     #epochs = np.concatenate([np.arange(5,25,5), [40,50,60]])
-    #epochs = [40, 50]
-
+    epochs = [5, 10, 20]
 
     train_data, test_data = ExperimentUtils.simple_train_test_split(parameter_dict)
 
@@ -228,4 +230,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
