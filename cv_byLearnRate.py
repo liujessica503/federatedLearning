@@ -111,7 +111,7 @@ def run_cv(
                                     'Fed_stepsize_' + str(fed_stepsize)][
                                     'Learn_rate_' + str(lr)].append(results['AUC'])
                                 elif len(
-                                parameter_dict['classification_thresholds']
+                                parameter_dict['output_layer']['classification_thresholds']
                             ) > 1:
                                     metrics_by_lr[
                                     'Epoch_' + str(epoch)][
