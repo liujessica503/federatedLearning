@@ -46,7 +46,7 @@ def preprocess_measurements(directory):
     save data files in our desired format
     '''
     # raw data files
-    list_of_files = ['S3/S3.pkl', 'S4/S4.pkl', 
+    list_of_files = ['S2/S2.pkl', 'S3/S3.pkl', 'S4/S4.pkl', 
     'S5/S5.pkl', 'S6/S6.pkl', 'S7/S7.pkl', 'S8/S8.pkl', 'S9/S9.pkl', 
     'S10/S10.pkl', 'S11/S11.pkl', 'S13/S13.pkl', 'S14/S14.pkl',
     'S15/S15.pkl','S16/S16.pkl','S17/S17.pkl']
