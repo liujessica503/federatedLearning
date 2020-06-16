@@ -100,3 +100,16 @@ class UserDayData:
             y=self.y[rows],
             user_day_pairs=[self.user_day_pairs[i] for i in rows]
         )
+
+
+    def get_subset_for_user_day_pairs(self, user_day_pairs: List[int])->Any:
+        rows = []
+        for (user, day) in user_day_pairs:
+            rows = rows + [
+                ind for ind, v in enumerate(self.user_day_pairs) if v[0] == user and v[1] == day
+            ]
+        return UserDayData(
+            X=self.X.iloc[rows, :],
+            y=self.y[rows],
+            user_day_pairs=user_day_pairs
+        )

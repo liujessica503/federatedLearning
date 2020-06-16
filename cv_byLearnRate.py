@@ -9,6 +9,7 @@ import json
 import sys
 import numpy as np
 import datetime
+from operator import itemgetter
 
 # import user-defined functions
 
@@ -35,7 +36,8 @@ def run_cv(
     local_updates_per_round_list: List[int], 
     fed_stepsize_list: List[float], 
     lrs: List[float],
-    parameter_dict: Dict[str, float]
+    parameter_dict: Dict[str, float],
+    user_list: List[int]
 )->Dict[str, float]:
 
     num_val_samples = 50 // k
@@ -77,14 +79,52 @@ def run_cv(
                         parameter_dict['learn_rate'] = lr
 
                         for i in range(k):
-                            val_days = list(range(i * num_val_samples, (i + 1) * num_val_samples))
-                            val_fold = train_data.get_subset_for_days(val_days)
 
-                            train_days = (
-                                list(range(i * num_val_samples)) +
-                                list(range((i + 1) * num_val_samples, num_val_samples * k))
-                            )
-                            train_fold = train_data.get_subset_for_days(train_days)
+                            val_pairs = []
+                            train_pairs = []
+                            for user in user_list:
+                                # we need to set the validation days for each user separately
+                                # because the order of tasks differed across users
+                                # and number of measurements differed very slightly 
+                                # for each task for each user
+
+                                # get the indices where the classification label changes
+                                # this only works if the first and last values are NOT the same, 
+                                # which in our case is true, because the labeled tasks
+                                # (baseline, stress, amusement)
+                                # occur sequentially and do not repeat
+
+                                # get the classes in the validation set for each user
+
+                                user_data = train_data.get_subset_for_users([user])
+                                user_days = [x[1] for x in user_data.user_day_pairs]
+                                user_val_y = user_data.get_y()
+
+                                # index where class a, class b, class c start
+                                class_b_start = np.where(np.roll(user_val_y,1)!=user_val_y)[0][1]
+                                class_c_start = np.where(np.roll(user_val_y,1)!=user_val_y)[0][2]
+
+                                # get indices of user_days that we want for validation set
+                                class_a_idx = list(range(class_b_start // 3 * i, class_b_start // 3 * (i + 1)))
+                                class_b_idx = list(range(class_b_start, class_b_start + (class_c_start - class_b_start)//3 * (i + 1)))
+                                class_c_idx = list(range(class_c_start, class_c_start + (len(user_val_y) - class_c_start) // 3 * (i + 1)))
+
+                                user_val_idx = class_a_idx + class_b_idx + class_c_idx
+                                # get the days we want for validation, based on our selected indices
+                                mask = np.zeros(np.array(user_days).shape,dtype = bool)
+                                mask[user_val_idx] = True
+                                user_val_days = np.array(user_days)[mask]
+
+                                for x in user_val_days:
+                                    val_pairs.append((user, x))
+
+                                # use the rest of the training data for training set
+                                user_train_days = np.array(user_days)[~mask]
+                                for x in user_train_days:
+                                    train_pairs.append((user, x))
+
+                            train_fold = train_data.get_subset_for_user_day_pairs(train_pairs)
+                            val_fold = train_data.get_subset_for_user_day_pairs(val_pairs)
 
                             model = model_class(
                                 parameter_config=parameter_dict,
@@ -218,9 +258,13 @@ def main():
     #epochs = np.concatenate([np.arange(5,25,5), [40,50,60]])
     epochs = [5, 10, 20]
 
+    # user IDs, created in split_train_test_global.py
+    # equals np.unique(train_data.get_users())
+    user_list = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]
+
     train_data, test_data = ExperimentUtils.simple_train_test_split(parameter_dict)
 
-    metrics_by_lr = run_cv(model_class, train_data, k, epochs, clients_per_round_list, local_updates_per_round_list, fed_stepsize_list, lrs, parameter_dict)
+    metrics_by_lr = run_cv(model_class, train_data, k, epochs, clients_per_round_list, local_updates_per_round_list, fed_stepsize_list, lrs, parameter_dict, user_list)
 
     ExperimentUtils.write_to_json(metrics_by_lr, parameter_dict['output_path'] + '_cv_lr')
 
