@@ -10,6 +10,8 @@ import sys
 import numpy as np
 import datetime
 from operator import itemgetter
+from keras import backend as K
+import tensorflow as tf
 
 # import user-defined functions
 
@@ -41,6 +43,7 @@ def run_cv(
 )->Dict[str, float]:
 
     num_val_samples = 50 // k
+
 
     # save metrics in dictionary
     metrics_by_lr = defaultdict(list)
@@ -79,6 +82,7 @@ def run_cv(
                         parameter_dict['learn_rate'] = lr
 
                         for i in range(k):
+
 
                             val_pairs = []
                             train_pairs = []
@@ -126,6 +130,15 @@ def run_cv(
                             train_fold = train_data.get_subset_for_user_day_pairs(train_pairs)
                             val_fold = train_data.get_subset_for_user_day_pairs(val_pairs)
 
+                            # to avoid memory leak when tuning each set of parameters
+                            K.clear_session()
+
+                            session_conf = tf.ConfigProto(
+                                intra_op_parallelism_threads=1, inter_op_parallelism_threads=1
+                            )
+                            sess = tf.Session(graph=tf.get_default_graph(), config=session_conf)
+                            K.set_session(sess)                             
+
                             model = model_class(
                                 parameter_config=parameter_dict,
                             )
@@ -165,8 +178,8 @@ def run_cv(
                                         must have at least length 1')
                                     
                             # write to file
-                            #ExperimentUtils.write_to_json(metrics_by_lr, parameter_dict['output_path'] + 'tmp_cv_lr')
-                            output_path = parameter_dict['output_path'] + 'tmp_cv_lr'
+                            #ExperimentUtils.write_to_json(metrics_by_lr, parameter_dict['output_path'] + "_(" + parameter_dict['model_type'] + ")" + 'tmp_cv_lr')
+                            output_path = parameter_dict['output_path'] + "_(" + parameter_dict['model_type'] + ")" + 'tmp_cv_lr'
                             with open(output_path + ".json", "w") as f:
                                  json.dump(metrics_by_lr, f, indent=4)
             
