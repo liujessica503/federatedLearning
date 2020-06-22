@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 # import user-defined functions
 from split_train_test_global import split_train_test_global # use all available covariates to predict mood
 from split_train_test_mood import split_train_test_mood # use previous 7 days' mood to predict mood
+from split_train_test_global_rawData import split_train_test_global_raw
 from UserDayData import UserDayData
 from typing import Any, Dict
 
@@ -67,6 +68,39 @@ class ExperimentUtils:
             test_labels,
             test_user_day_pairs
         ) = split_train_test_global(
+            directory=parameter_dict['input_directory'],
+            cv=parameter_dict['cv'],
+            prediction_classes=parameter_dict[
+                "output_layer"
+            ]["classification_thresholds"],
+            loss_type=parameter_dict[
+                "output_layer"
+            ]["loss_type"],
+        )
+
+        train_data = UserDayData(
+            X=train_covariates,
+            y=train_labels,
+            user_day_pairs=train_user_day_pairs
+        )
+        test_data = UserDayData(
+            X=test_covariates,
+            y=test_labels,
+            user_day_pairs=test_user_day_pairs
+        )
+
+        return train_data, test_data
+
+    @staticmethod
+    def raw_train_test_split(parameter_dict: Dict[str, Any])->UserDayData:
+        (
+            train_covariates,
+            train_labels,
+            train_user_day_pairs,
+            test_covariates,
+            test_labels,
+            test_user_day_pairs
+        ) = split_train_test_global_raw(
             directory=parameter_dict['input_directory'],
             cv=parameter_dict['cv'],
             prediction_classes=parameter_dict[
