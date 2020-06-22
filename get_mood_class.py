@@ -21,7 +21,7 @@ def get_mood_class(data, classification_thresholds, loss_type):
             data.loc[data['1'] == 1, 'label'] = 1
             data.loc[data['2'] == 1, 'label'] = 2
 
-    # drop index and dummy ariables for labels, now redundant
+    # drop index and dummy variables for labels, now redundant
     data = data.drop(['Unnamed: 0','0','1','2'], axis = 1)
 
     return data
