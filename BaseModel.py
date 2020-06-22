@@ -23,6 +23,7 @@ from sklearn.metrics import (
 import keras.callbacks
 import sys
 import json
+from functools import partial # for leaky relu activation
 
 # TODO: Add seed setting
 
@@ -82,7 +83,6 @@ class BaseModel(ABC):
 
             self.layers = parameter_config["layers"]
             self.input_dim = parameter_config["input_dim"]
-            self.activation = parameter_config["activation"]
             self.lr = parameter_config["learn_rate"]
             self.epochs = parameter_config["epochs"]
             self.batch_size = parameter_config["batch_size"]
@@ -105,15 +105,15 @@ class BaseModel(ABC):
                 Dense(
                     self.layers[0],
                     input_dim=self.input_dim,
-                    activation=self.activation,
+                    activation=partial(tf.nn.leaky_relu, alpha=0.01),
                 )
             )
 
-            # dropout on hidden layer
-            self.model.add(Dropout(0.5))
+            ## dropout on hidden layer
+            #self.model.add(Dropout(0.5))
 
             for i in range(1, len(self.layers)):
-                self.model.add(Dense(self.layers[i], activation=self.activation))
+                self.model.add(Dense(self.layers[i], activation=partial(tf.nn.leaky_relu, alpha=0.01)))
             self.model.add(self.output_layer.layer)
             self.model.compile(
                 loss=self.output_layer.loss,
@@ -194,8 +194,6 @@ class BaseModel(ABC):
 
         metrics = {
             "Number of Test Obs": test_labels.shape[0],
-            "FPR": fpr,
-            "TPR": tpr,
             "AUC": auc_value,
             'Score': score,
             'Precision': precision,

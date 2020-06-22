@@ -9,7 +9,7 @@ from keras import optimizers
 from OutputLayer import OutputLayer
 from sklearn.preprocessing import StandardScaler
 from typing import Any, Dict, List
-
+from functools import partial # for leaky relu activation
 from BaseModel import BaseModel, TestCallback
 
 
@@ -77,12 +77,12 @@ class GlobalModelPersonalized(BaseModel):
         self.model.add(
             Dense(
                 self.layers[0],
-                activation=self.activation,
+                activation=partial(tf.nn.leaky_relu, alpha=0.01),
             )
         )
 
         for i in range(1, len(self.layers)):
-            self.model.add(Dense(self.layers[i], activation=self.activation))
+            self.model.add(Dense(self.layers[i], activation=partial(tf.nn.leaky_relu, alpha=0.01)))
         self.model.add(self.output_layer.layer)
         self.model.compile(
             loss=self.output_layer.loss,
