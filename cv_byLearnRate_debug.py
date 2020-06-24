@@ -220,11 +220,12 @@ def main():
     epochs = [5]
 
     # train_data, test_data = ExperimentUtils.simple_train_test_split(parameter_dict)
-
+    #train_data, test_data = ExperimentUtils.raw_train_test_split(parameter_dict)
+    import pandas as pd
     train_data = UserDayData(
-        X=pd.DataFrame(np.array(2*[[1,1,1,1],[2,2,2,2],[3,3,3,3]])),
-        y=np.array(2*[1,2,3]),
-        user_day_pairs=[(1,31), (1,32), (1,33),(1,1), (1,2), (1,3)]
+        X=pd.DataFrame(np.array(6*[[1,1,1,1],[2,2,2,2],[3,3,3,3]])),
+        y=np.array([1,1,1,1,1,1,2,2,2,2,2,2,2,3,3,3,3,3]),
+        user_day_pairs=[(2,31), (2,32), (2,33),(2,1), (2,2), (2,3), (2,4), (2,5), (2,6), (2,7), (2,8), (2,9), (2,10), (2,11), (2,12), (2,13), (2,14), (2,15)]
     )
     test_data =[]
 

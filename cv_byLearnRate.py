@@ -110,8 +110,9 @@ def run_cv(
 
                                 # get indices of user_days that we want for validation set
                                 class_a_idx = list(range(class_b_start // 3 * i, class_b_start // 3 * (i + 1)))
-                                class_b_idx = list(range(class_b_start, class_b_start + (class_c_start - class_b_start)//3 * (i + 1)))
-                                class_c_idx = list(range(class_c_start, class_c_start + (len(user_val_y) - class_c_start) // 3 * (i + 1)))
+                                class_b_idx = list(range(class_b_start + (class_c_start - class_b_start) // 3 * i, class_b_start + (class_c_start - class_b_start)//3 * (i + 1)))
+                                class_c_idx = list(range(class_c_start + (len(user_val_y) - class_c_start) // 3 * i, class_c_start + (len(user_val_y) - class_c_start) // 3 * (i + 1)))
+
 
                                 user_val_idx = class_a_idx + class_b_idx + class_c_idx
                                 # get the days we want for validation, based on our selected indices
@@ -275,11 +276,12 @@ def main():
     # equals np.unique(train_data.get_users())
     user_list = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]
 
+    #train_data, test_data = ExperimentUtils.raw_train_test_split(parameter_dict)
     train_data, test_data = ExperimentUtils.simple_train_test_split(parameter_dict)
 
     metrics_by_lr = run_cv(model_class, train_data, k, epochs, clients_per_round_list, local_updates_per_round_list, fed_stepsize_list, lrs, parameter_dict, user_list)
 
-    ExperimentUtils.write_to_json(metrics_by_lr, parameter_dict['output_path'] + '_cv_lr')
+    ExperimentUtils.write_to_json(metrics_by_lr, parameter_dict['output_path'] + "_(" + parameter_dict['model_type'] + ")" + '_cv_lr')
 
 
     finish = datetime.datetime.now() - start
