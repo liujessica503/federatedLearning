@@ -72,7 +72,7 @@ def preprocess_measurements(directory):
 
     return
 
-def split_train_test_global(
+def split_train_test_global_raw(
     directory, cv=0, prediction_classes=0, loss_type='classification'
 ):
     train_data_dict = {}
@@ -110,15 +110,20 @@ def split_train_test_global(
         stress_data_test = stress_data.iloc[stress_data.shape[0] * 2 //3:, :]
         amusement_data_test = amusement_data.iloc[amusement_data.shape[0] * 2 //3:, :]
 
-        # recode Label 0 = non-stress, 1 = stress
         train_data = pd.concat([baseline_data_train, stress_data_train, amusement_data_train])
-        train_data.loc[train_data['Label'] == 1, 'Label'] = 0
-        train_data.loc[train_data['Label'] == 2, 'Label'] = 1
-        train_data.loc[train_data['Label'] == 3, 'Label'] = 1
         test_data = pd.concat([baseline_data_test, stress_data_test, amusement_data_test])
-        test_data.loc[test_data['Label'] == 1, 'Label'] = 0
-        test_data.loc[test_data['Label'] == 2, 'Label'] = 1
-        test_data.loc[test_data['Label'] == 3, 'Label'] = 1
+
+        # for working with extracted features, not raw data
+        #train_data = get_mood_class(train_data, prediction_classes, loss_type)
+        #test_data = get_mood_class(test_data, prediction_classes, loss_type)
+
+        ##  for binary classification, recode Label 0 = non-stress, 1 = stress
+        # train_data.loc[train_data['Label'] == 1, 'Label'] = 0
+        # train_data.loc[train_data['Label'] == 2, 'Label'] = 1
+        # train_data.loc[train_data['Label'] == 3, 'Label'] = 1
+        # test_data.loc[test_data['Label'] == 1, 'Label'] = 0
+        # test_data.loc[test_data['Label'] == 2, 'Label'] = 1
+        # test_data.loc[test_data['Label'] == 3, 'Label'] = 1
 
         train_data_dict[f] = train_data
         train_days = train_data_dict[f].index
