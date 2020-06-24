@@ -102,14 +102,17 @@ class UserDayData:
         )
 
 
-    def get_subset_for_user_day_pairs(self, user_day_pairs: List[int])->Any:
+    def get_subset_for_user_day_pairs(self, selected_user_day_pairs: List[int])->Any:
+
+        inverse_index = {v: ind for ind, v in enumerate(selected_user_day_pairs)}
+
         rows = []
-        for (user, day) in user_day_pairs:
-            rows = rows + [
-                ind for ind, v in enumerate(self.user_day_pairs) if v[0] == user and v[1] == day
+        rows = rows + [
+            ind for ind, v in enumerate(self.user_day_pairs) if v in inverse_index
             ]
+
         return UserDayData(
             X=self.X.iloc[rows, :],
             y=self.y[rows],
-            user_day_pairs=user_day_pairs
+            user_day_pairs=[self.user_day_pairs[i] for i in rows]
         )
