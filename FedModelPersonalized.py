@@ -9,7 +9,7 @@ import FedModel
 
 from keras import backend as K
 from keras.models import Sequential
-from keras.layers import Dense, Embedding, Layer
+from keras.layers import Dense, Embedding, Layer, Dropout
 from keras import optimizers
 from OutputLayer import OutputLayer
 from sklearn.preprocessing import StandardScaler
