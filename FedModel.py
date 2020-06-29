@@ -53,7 +53,7 @@ class FedModel(BaseModel):
 
                 # select 80 clients
                 clients = np.random.choice(
-                    self.unique_users, self.clients_per_round
+                    self.unique_users, self.clients_per_round, replace = False
                 )
 
                 '''

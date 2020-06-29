@@ -85,6 +85,9 @@ class FedModelPersonalized(FedModel.FedModel):
             )
         )
 
+        ## dropout on hidden layer
+        # self.model.add(Dropout(0.5))
+
         for i in range(1, len(self.layers)):
             self.model.add(Dense(self.layers[i], activation=partial(tf.nn.leaky_relu, alpha=0.01)))
         self.model.add(self.output_layer.layer)
@@ -124,7 +127,7 @@ class FedModelPersonalized(FedModel.FedModel):
 
                 # select 80 clients
                 clients = np.random.choice(
-                    self.unique_users, self.clients_per_round
+                    self.unique_users, self.clients_per_round, replace = False
                 )
 
                 '''
