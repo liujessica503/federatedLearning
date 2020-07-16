@@ -43,7 +43,7 @@ class GlobalModelPersonalized(BaseModel):
     def __init__(self, parameter_config: Dict[str, float]):
         super().__init__(parameter_config)
         self.parameter_config = parameter_config
-        self.num_personalized_units = 1
+        self.num_personalized_units = 2
 
     def train(
         self, user_day_data: Any, test_user_day_data: Any, test_callback=0
@@ -104,6 +104,7 @@ class GlobalModelPersonalized(BaseModel):
         self.scaler = StandardScaler().fit(user_day_data.get_X())
         # Scale the train set
         X_train = self.scaler.transform(user_day_data.get_X())
+        #X_train = user_day_data.get_X()
         Y_train = user_day_data.get_y()
 
         self.output_layer.fit_one_hot(Y_train)
@@ -139,6 +140,7 @@ class GlobalModelPersonalized(BaseModel):
 
     def predict(self, user_day_data: Any, userID = None) -> List[float]:
         X_test = self.scaler.transform(user_day_data.get_X())
+        #X_test = user_day_data.get_X()
         X_test = np.column_stack(
             (
                 X_test,
@@ -153,6 +155,7 @@ class GlobalModelPersonalized(BaseModel):
 
     def get_score(self, user_day_data)->str:
         X_test = self.scaler.transform(user_day_data.get_X())
+        #X_test = user_day_data.get_X()
         X_test = np.column_stack(
             (
                 X_test,

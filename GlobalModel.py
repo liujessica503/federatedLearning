@@ -11,6 +11,7 @@ class GlobalModel(BaseModel):
         self.scaler = StandardScaler().fit(user_day_data.get_X())
         # Scale the train set
         X_train = self.scaler.transform(user_day_data.get_X())
+        #X_train = user_day_data.get_X()
         Y_train = user_day_data.get_y()
 
         self.output_layer.fit_one_hot(Y_train)
@@ -41,9 +42,11 @@ class GlobalModel(BaseModel):
     def predict(self, user_day_data: Any)->List[float]:
         # self.check_is_trained()
         X_test = self.scaler.transform(user_day_data.get_X())
+        #X_test = user_day_data.get_X()
         return self.model.predict(X_test)
 
     def get_score(self, user_day_data: Any)->str:
         # self.check_is_trained()
         X_test = self.scaler.transform(user_day_data.get_X())
+        #X_test = user_day_data.get_X()
         return self.model.evaluate(X_test, user_day_data.get_y())

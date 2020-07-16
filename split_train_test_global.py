@@ -12,6 +12,7 @@ import re
 # just doing 0-1 classification on WESAD data
 # import user-defined function
 from get_mood_class import get_mood_class
+from sklearn.preprocessing import StandardScaler
 
 
 def split_train_test_global(
@@ -61,23 +62,46 @@ def split_train_test_global(
         test_pairs_dict[f] = [(int(userID), int(x)) for x in test_days]
 
 
-    train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
+
+    #train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
+
+    tmp_train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
+    # testing fed model using global model's standardization method, 7/3/2020
+    scaler = StandardScaler().fit(tmp_train_data)
+    # Scale the train set
+    train_data_np = scaler.transform(tmp_train_data)
+    # convert np array to pandas to retain column names
+    train_data = pd.DataFrame(train_data_np, columns = tmp_train_data.columns)
+    # end
+    
+
     train_pairs = [train_pairs_dict[f] for f in files_in_folder]
     train_user_day_pairs = [
         item for sublist in train_pairs for item in sublist
     ]
 
-    test_data = pd.concat(test_data_dict[f] for f in files_in_folder)
+    #test_data = pd.concat(test_data_dict[f] for f in files_in_folder)
+
+
+    tmp_test_data = pd.concat(test_data_dict[f] for f in files_in_folder)
+    # testing fed model using global model's standardization method, 7/3/2020
+    # Scale the test set
+    test_data_np = scaler.transform(tmp_test_data)
+    # convert np array to pandas to retain column names
+    test_data = pd.DataFrame(test_data_np, columns = tmp_test_data.columns)
+    # end
+ 
+
     test_pairs = [test_pairs_dict[f] for f in files_in_folder]
     test_user_day_pairs = [item for sublist in test_pairs for item in sublist]
-
-    #train_data = get_mood_class(train_data, prediction_classes, loss_type)
-    #test_data = get_mood_class(test_data, prediction_classes, loss_type)
+    
 
     train_covariates = train_data.drop('label', axis=1)
-    train_labels = np.ravel(train_data.label)
+    train_labels = np.ravel(tmp_train_data.label) # keep non-standardized labels for test 
+    #train_labels = np.ravel(train_data.label)
     test_covariates = test_data.drop('label', axis=1)
-    test_labels = np.ravel(test_data.label)
+    test_labels = np.ravel(tmp_test_data.label)
+    #test_labels = np.ravel(test_data.label) # keep non-standardized labels for test 
 
     return (
         train_covariates,

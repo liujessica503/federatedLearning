@@ -12,7 +12,7 @@ from keras.models import Sequential
 from keras.layers import Dense, Embedding, Layer, Dropout
 from keras import optimizers
 from OutputLayer import OutputLayer
-from sklearn.preprocessing import StandardScaler
+#from sklearn.preprocessing import StandardScaler
 from typing import Any, Dict, List
 from functools import partial # for leaky relu activation
 
@@ -47,7 +47,7 @@ class FedModelPersonalized(FedModel.FedModel):
     def __init__(self, parameter_config: Dict[str, float]):
         super().__init__(parameter_config)
         self.parameter_config = parameter_config
-        self.num_personalized_units = 1
+        self.num_personalized_units = 2
 
     def train(
         self, user_day_data: Any, test_user_day_data: Any, test_callback=0
@@ -107,10 +107,10 @@ class FedModelPersonalized(FedModel.FedModel):
         self.initialization = self.model.get_weights()
 
         self.output_layer.fit_one_hot(user_day_data.get_y())
-        self.scalers_dict = {}
+        #self.scalers_dict = {}
         for user in self.unique_users:
             X_train, Y_train = user_day_data.get_data_for_users([user])
-            self.scalers_dict[user] = StandardScaler().fit(X_train)
+            #self.scalers_dict[user] = StandardScaler().fit(X_train)
 
         self.full_model_weights = self.initialization
 
@@ -150,8 +150,8 @@ class FedModelPersonalized(FedModel.FedModel):
                         [clients[i]]
                     )
 
-                    user_scaler = self.scalers_dict[clients[i]]
-                    X_train = user_scaler.transform(X_train)
+                    #user_scaler = self.scalers_dict[clients[i]]
+                    #X_train = user_scaler.transform(X_train)
                     X_train = np.column_stack(
                         (
                             X_train,
@@ -255,9 +255,9 @@ class FedModelPersonalized(FedModel.FedModel):
         )
 
         for user in pred_users:
-            user_prediction_scaler = self.scalers_dict[user]
+            #user_prediction_scaler = self.scalers_dict[user]
             X_test, Y_test = user_day_data.get_data_for_users([user])
-            X_test = user_prediction_scaler.transform(X_test)
+            #X_test = user_prediction_scaler.transform(X_test)
             X_test = np.column_stack(
                 (
                     X_test,
@@ -279,8 +279,9 @@ class FedModelPersonalized(FedModel.FedModel):
         any of the client specific standardizers, so the best we can do is
         standardize the new data with itself.
         """
-        scaler = StandardScaler().fit(user_day_data.get_X())
-        X_test = scaler.transform(user_day_data.get_X())
+        #scaler = StandardScaler().fit(user_day_data.get_X())
+        #X_test = scaler.transform(user_day_data.get_X())
+        X_test = user_day_data.get_X()
         X_test = np.column_stack(
             (
                 X_test,
@@ -315,9 +316,9 @@ class FedModelPersonalized(FedModel.FedModel):
         )
         score = ""
         for user in eval_users:
-            user_prediction_scaler = self.scalers_dict[user]
+            #user_prediction_scaler = self.scalers_dict[user]
             X_test, Y_test = user_day_data.get_data_for_users([user])
-            X_test = user_prediction_scaler.transform(X_test)
+            #X_test = user_prediction_scaler.transform(X_test)
             X_test = np.column_stack(
                 (
                     X_test,
@@ -337,8 +338,9 @@ class FedModelPersonalized(FedModel.FedModel):
         any of the client specific standardizers, so the best we can do is
         standardize the new data with itself.
         """
-        scaler = StandardScaler().fit(user_day_data.get_X())
-        X_test = scaler.transform(user_day_data.get_X())
+        #scaler = StandardScaler().fit(user_day_data.get_X())
+        #X_test = scaler.transform(user_day_data.get_X())
+        X_test = user_day_data.get_X()
         X_test = np.column_stack(
             (
                 X_test,
