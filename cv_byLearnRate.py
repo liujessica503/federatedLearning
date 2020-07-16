@@ -4,7 +4,6 @@
 # local updates
 # fed_stepsize
 # learning rate: AUC or mse
-
 import json
 import sys
 import numpy as np
@@ -27,6 +26,10 @@ from UserDayData import UserDayData
 from collections import defaultdict
 from ExperimentUtils import ExperimentUtils
 from typing import List, Dict
+
+# standardize the data
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
 
 
 def run_cv(
@@ -113,7 +116,6 @@ def run_cv(
                                 class_b_idx = list(range(class_b_start + (class_c_start - class_b_start) // 3 * i, class_b_start + (class_c_start - class_b_start)//3 * (i + 1)))
                                 class_c_idx = list(range(class_c_start + (len(user_val_y) - class_c_start) // 3 * i, class_c_start + (len(user_val_y) - class_c_start) // 3 * (i + 1)))
 
-
                                 user_val_idx = class_a_idx + class_b_idx + class_c_idx
                                 # get the days we want for validation, based on our selected indices
                                 mask = np.zeros(np.array(user_days).shape,dtype = bool)
@@ -128,10 +130,15 @@ def run_cv(
                                 for x in user_train_days:
                                     train_pairs.append((user, x))
 
-                            train_fold = train_data.get_subset_for_user_day_pairs(train_pairs)
-                            val_fold = train_data.get_subset_for_user_day_pairs(val_pairs)
+                            #train_fold = train_data.get_subset_for_user_day_pairs(train_pairs)
+                            #val_fold = train_data.get_subset_for_user_day_pairs(val_pairs)
 
-                            # to avoid memory leak when tuning each set of parameters
+                            # just to test, using global model's standardization 
+                            tmp_train_fold = train_data.get_subset_for_user_day_pairs(train_pairs)
+                            tmp_val_fold = train_data.get_subset_for_user_day_pairs(val_pairs)
+                            # end
+
+                            # seeing if this will fix memory leak
                             K.clear_session()
 
                             session_conf = tf.ConfigProto(
@@ -143,6 +150,17 @@ def run_cv(
                             model = model_class(
                                 parameter_config=parameter_dict,
                             )
+
+                            # just to test, using global model's standardization instead of fed model's
+                            scaler = StandardScaler().fit(tmp_train_fold.get_X())
+                            train_fold_X_np = scaler.transform(tmp_train_fold.get_X())
+                            train_fold_X = pd.DataFrame(train_fold_X_np, columns = tmp_train_fold.get_X().columns)
+                            val_fold_X_np = scaler.transform(tmp_val_fold.get_X())
+                            val_fold_X = pd.DataFrame(val_fold_X_np, columns = tmp_val_fold.get_X().columns)
+                            train_fold = UserDayData(X=train_fold_X, user_day_pairs = tmp_train_fold.get_user_day_pairs(), y = tmp_train_fold.get_y())
+                            val_fold = UserDayData(X=val_fold_X, user_day_pairs = tmp_val_fold.get_user_day_pairs(), y = tmp_val_fold.get_y())
+                            # end
+
                             results = ExperimentUtils.run_single_experiment(
                                 model, train_fold, val_fold)
 
@@ -245,13 +263,14 @@ def main():
 
     # 5, 10, 25, 50 % of users
     #clients_per_round_list = [20, 40, 100, 200]
-    clients_per_round_list = [5, 10, 15, 25]
+    clients_per_round_list = [1, 2, 4, 8, 10, 15]
 
     #local_updates_per_round_list = [2, 4, 6, 8]
-    local_updates_per_round_list = [2, 5, 10]
+    #local_updates_per_round_list = [8000, 10000, 50000]
+    local_updates_per_round_list = [1, 2, 4, 8, 12]
 
-    #fed_stepsize_list = [0.1, 0.5, 1]
-    fed_stepsize_list = [1]
+    #fed_stepsize_list = [1]
+    fed_stepsize_list = [0.01, 0.1, 0.5, 0.7, 1]
 
     #lrs = [0.00001, 0.00005, 0.005, 0.01, 0.03, 0.05] # an hour on jessica's computer
     # lrs = [0.02, 0.03, 0.04, 0.06] # 30 min on jessica's computer
@@ -270,10 +289,8 @@ def main():
     #epochs = np.arange(10,80,20)
     #epochs = np.arange(30,80,20)
     #epochs = np.concatenate([np.arange(5,25,5), [40,50,60]])
-    epochs = [5, 10, 20]
+    epochs = [1, 2, 5, 10, 20, 30, 40]
 
-    # user IDs, created in split_train_test_global.py
-    # equals np.unique(train_data.get_users())
     user_list = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17]
 
     #train_data, test_data = ExperimentUtils.raw_train_test_split(parameter_dict)
