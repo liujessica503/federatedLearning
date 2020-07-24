@@ -237,13 +237,13 @@ class BaseModel(ABC):
         if userID:
             print('running individual model\'s predict function')
             # use individual model's predict function
-            predictions = self.predict(test_user_day_data, userID)
+            predictions, test_labels = self.predict(test_user_day_data, userID)
         else: 
             # use global / federated model's predict function
             predictions = self.predict(test_user_day_data)
+            test_labels = test_user_day_data.get_y()
 
         class_predictions = np.argmax(predictions, axis=1)
-        test_labels = test_user_day_data.get_y()
         f1 = f1_score(test_labels, class_predictions, average="weighted")
         accuracy = accuracy_score(test_labels, class_predictions)
         return {
