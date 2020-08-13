@@ -1,8 +1,8 @@
 { 
 	"model_type": "global_model",
 	"seed": 1234,
-	"input_directory": "../WESAD/subject_feats_chest30/",
-	"output_path": "../WESAD/glResults/chest_feat_12_10_8Layers.csv",
+	"input_directory": "subject_feats_chest30/",
+	"output_path": "chest_feat_12_10_8Layers.csv",
 	"cv": 0,
 	"input_dim": 32,
 	"layers": [12, 10, 8],
