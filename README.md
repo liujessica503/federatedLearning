@@ -15,8 +15,8 @@ To replicate results, please install Python 3.7.7 and the following libraries an
 The full list of specs is in spec-file.txt
 
 To create an identical environment, enter on the command line:
-`<conda create --name myenv --file spec-file.txt>`
-`<conda activate myenv>`
+`conda create --name myenv --file spec-file.txt`
+`conda activate myenv`
 
 For more info: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#cloning-an-environment
 
@@ -24,7 +24,7 @@ For more info: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/m
 ## Running a single experiment: 
 1. Clone this repository, and make sure you are in the directory that contains the repository. 
 2. Enter the following on the command line:
-`<PYTHONHASHSEED=123456 python3 single_experiment.py fed_init_wesad.json>`
+`PYTHONHASHSEED=123456 python3 single_experiment.py fed_init_wesad.json`
 3. Change the last argument in 2. to be the file you want to run (see next paragraph for the corresponding file and model). 
 
 Files corresponding to each model: 
@@ -34,5 +34,5 @@ Files corresponding to each model:
 * Server (non-personalized) Model: global_init_wesad.json
 * Federated (non-personalized) Model: fed_init_wesad.json
 
-seed 1234 is used in each of the above .json files. The seeds used for the box plot in the appendix are:
+seed 1234 is used in each of the above .json files. The seeds used for the box plot in the paper appendix are:
 1234 1235 1236 1237 1238 1239 1240 1241 1242 1243 1244 1245 1246 1247 1248
