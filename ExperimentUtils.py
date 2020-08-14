@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 
 # import user-defined functions
 from split_train_test_global import split_train_test_global # use all available covariates to predict mood
-from split_train_test_mood import split_train_test_mood # use previous 7 days' mood to predict mood
-from split_train_test_global_rawData import split_train_test_global_raw
 from UserDayData import UserDayData
 from typing import Any, Dict
 
@@ -14,8 +12,6 @@ from GlobalModel import GlobalModel
 from GlobalModelPersonalized import GlobalModelPersonalized
 from FedModel import FedModel
 from FedModelPersonalized import FedModelPersonalized
-from MovingMeanModel import MovingMeanModel
-from BaselineModel import BaselineModel
 from BaseModel import BaseModel
 
 
@@ -27,8 +23,6 @@ class ExperimentUtils:
         "global_model_pers": GlobalModelPersonalized,
         "fed_model": FedModel,
         "fed_model_pers": FedModelPersonalized,
-        "moving_mean_model": MovingMeanModel,
-        "baseline_model": BaselineModel,
     }
 
     @staticmethod
@@ -166,7 +160,7 @@ class ExperimentUtils:
         except KeyError:
             raise KeyError(
                 'model_type in config json must be one of: "individual_model",'
-                '"global_model", "fed_model", "fed_model_pers", "global_model_pers", "moving_mean_model", "baseline_model"' 
+                '"global_model", "fed_model", "fed_model_pers", "global_model_pers"' 
             )
 
     @staticmethod
