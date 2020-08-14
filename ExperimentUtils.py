@@ -68,6 +68,7 @@ class ExperimentUtils:
             test_labels,
             test_user_day_pairs
         ) = split_train_test_global(
+            modelType = parameter_dict['model_type'],
             directory=parameter_dict['input_directory'],
             cv=parameter_dict['cv'],
             prediction_classes=parameter_dict[

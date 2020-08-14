@@ -16,7 +16,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 def split_train_test_global(
-    directory, cv=0, prediction_classes=0, loss_type='classification'
+    modelType, directory, cv=0, prediction_classes=0, loss_type='classification'
 ):
     train_data_dict = {}
     train_pairs_dict = {}
@@ -38,10 +38,10 @@ def split_train_test_global(
         stress_data = data.loc[data['2'] == 1]
         amusement_data = data.loc[data['0'] == 1]
 
-        # first 2/3 is training data, rest is test data
         baseline_data_train = baseline_data.iloc[0: baseline_data.shape[0] * 2 //3, :]
         stress_data_train = stress_data.iloc[0: stress_data.shape[0] * 2 //3, :]
         amusement_data_train = amusement_data.iloc[0: amusement_data.shape[0] * 2 //3, :]
+
 
         baseline_data_test = baseline_data.iloc[baseline_data.shape[0] * 2 //3:, :]
         stress_data_test = stress_data.iloc[stress_data.shape[0] * 2 //3:, :]
@@ -49,6 +49,7 @@ def split_train_test_global(
 
         train_data = pd.concat([baseline_data_train, stress_data_train, amusement_data_train])
         test_data = pd.concat([baseline_data_test, stress_data_test, amusement_data_test])
+
 
         train_data = get_mood_class(train_data, prediction_classes, loss_type)
         test_data = get_mood_class(test_data, prediction_classes, loss_type)
@@ -62,46 +63,50 @@ def split_train_test_global(
         test_pairs_dict[f] = [(int(userID), int(x)) for x in test_days]
 
 
+    if modelType != 'fed_model' and modelType != 'fed_model_pers':
+        train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
+    else:
+        # for federated models, we will standardize this way
+        tmp_train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
+        scaler = StandardScaler().fit(tmp_train_data)
+        # Scale the train set
+        train_data_np = scaler.transform(tmp_train_data)
+        # convert np array to pandas to retain column names
+        train_data = pd.DataFrame(train_data_np, columns = tmp_train_data.columns)
+        # end
 
-    #train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
-
-    tmp_train_data = pd.concat(train_data_dict[f] for f in files_in_folder)
-    # testing fed model using global model's standardization method, 7/3/2020
-    scaler = StandardScaler().fit(tmp_train_data)
-    # Scale the train set
-    train_data_np = scaler.transform(tmp_train_data)
-    # convert np array to pandas to retain column names
-    train_data = pd.DataFrame(train_data_np, columns = tmp_train_data.columns)
-    # end
-    
 
     train_pairs = [train_pairs_dict[f] for f in files_in_folder]
     train_user_day_pairs = [
         item for sublist in train_pairs for item in sublist
     ]
 
-    #test_data = pd.concat(test_data_dict[f] for f in files_in_folder)
-
-
-    tmp_test_data = pd.concat(test_data_dict[f] for f in files_in_folder)
-    # testing fed model using global model's standardization method, 7/3/2020
-    # Scale the test set
-    test_data_np = scaler.transform(tmp_test_data)
-    # convert np array to pandas to retain column names
-    test_data = pd.DataFrame(test_data_np, columns = tmp_test_data.columns)
-    # end
- 
+    if modelType != 'fed_model' and modelType != 'fed_model_pers':
+        test_data = pd.concat(test_data_dict[f] for f in files_in_folder)
+    else:
+        # for federated models, we will standardize this way
+        tmp_test_data = pd.concat(test_data_dict[f] for f in files_in_folder)
+        # testing fed model using global model's standardization method, 7/3/2020
+        # Scale the test set
+        test_data_np = scaler.transform(tmp_test_data)
+        # convert np array to pandas to retain column names
+        test_data = pd.DataFrame(test_data_np, columns = tmp_test_data.columns)
+        # end
+    
 
     test_pairs = [test_pairs_dict[f] for f in files_in_folder]
     test_user_day_pairs = [item for sublist in test_pairs for item in sublist]
-    
 
     train_covariates = train_data.drop('label', axis=1)
-    train_labels = np.ravel(tmp_train_data.label) # keep non-standardized labels for test 
-    #train_labels = np.ravel(train_data.label)
     test_covariates = test_data.drop('label', axis=1)
-    test_labels = np.ravel(tmp_test_data.label)
-    #test_labels = np.ravel(test_data.label) # keep non-standardized labels for test 
+
+    if modelType != 'fed_model' and modelType != 'fed_model_pers':
+        train_labels = np.ravel(train_data.label)
+        test_labels = np.ravel(test_data.label) 
+    else:
+        # keep non-standardized labels for test
+        train_labels = np.ravel(tmp_train_data.label)  
+        test_labels = np.ravel(tmp_test_data.label)
 
     return (
         train_covariates,
