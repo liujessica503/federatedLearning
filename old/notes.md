@@ -1,3 +1,10 @@
+to view what is installed on great lakes environment that I named fedModelSetup
+
+module load python3.6-anaconda
+source activate fedModelSetup
+conda list
+
+
 6/17/2020
 module load python3.6-anaconda
 source activate fedModelSetup 
