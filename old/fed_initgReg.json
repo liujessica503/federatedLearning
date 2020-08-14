@@ -1,0 +1,27 @@
+{
+	"model_type": "fed_model_pers",
+	"seed": 1240,
+	"input_directory": "../WESAD/subject_feats_chest30",
+	"output_path": "../WESAD/glResults/fed_run7Redo.csv",
+	"cv": 0,
+	"input_dim": 32,
+	"layers": [12, 10, 8],
+	"output_layer": {
+		"loss_type": "classification",
+		"classification_thresholds": [1,2]
+	},
+	"learn_rate": 0.04,
+	"batch_size": 10,
+	"epochs": 40,
+	"test_callback": 1,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2_fed_regression.png",
+	"fed_model_parameters": {
+		"clients_per_round": 1,
+		"local_updates_per_round": 4,
+		"deployment_location": "client",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 0.5
+	}
+}

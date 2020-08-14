@@ -1,0 +1,28 @@
+{
+	"model_type": "fed_model_pers",
+	"seed": 360,
+	"input_directory": "../cv4_ImputeUsingTrainingMean",
+	"output_path": "../cv4_fed_regression1_pers_1Layer_dropout_linear.csv",
+	"cv": 4,
+	"input_dim": 7,
+	"layers": [2],
+	"activation": null,
+	"output_layer": {
+		"loss_type": "regression",
+		"classification_thresholds": ""
+	},
+	"learn_rate": 0.04,
+	"batch_size": 40,
+	"epochs": 30,
+	"test_callback": 0,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "../cv4_fed_regression.png",
+	"fed_model_parameters": {
+		"clients_per_round": 40,
+		"local_updates_per_round": 1,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 1
+	}
+}

@@ -1,0 +1,28 @@
+{
+	"model_type": "fed_model_pers",
+	"seed": 362,
+	"input_directory": "/Users/jessica/Downloads/WESAD_Data_Scripts/WESAD_Scripts/data/subject_feats_wrist_window30/",
+	"output_path": "/Users/jessica/Downloads/WESAD_Data_Scripts/results/glResults/multiClass_wrist_2layer_window_30_cv_2updates_2.csv",
+	"cv": 0,
+	"input_dim": 42,
+	"layers": [8, 4],
+	"activation": "relu",
+	"output_layer": {
+		"loss_type": "classification",
+		"classification_thresholds": [1,2]
+	},
+	"learn_rate": 0.4,
+	"batch_size": 10,
+	"epochs": 20,
+	"test_callback": 1,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "../cv2_fed_binary.png",
+	"fed_model_parameters": {
+		"clients_per_round": 15,
+		"local_updates_per_round": 2,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 1
+	}
+}

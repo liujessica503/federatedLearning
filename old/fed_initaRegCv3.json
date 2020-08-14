@@ -1,0 +1,28 @@
+{
+	"model_type": "fed_model_pers",
+	"seed": 360,
+	"input_directory": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv3_ImputeUsingTrainingMean",
+	"output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv3_fed_regression1_pers_1Layer_dropout_linear_moodOnly.csv",
+	"cv": 3,
+	"input_dim": 7,
+	"layers": [2],
+	"activation": null,
+	"output_layer": {
+		"loss_type": "regression",
+		"classification_thresholds": ""
+	},
+	"learn_rate": 0.3,
+	"batch_size": 40,
+	"epochs": 5,
+	"test_callback": 1,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "../cv3_fed_regression.png",
+	"fed_model_parameters": {
+		"clients_per_round": 40,
+		"local_updates_per_round": 2,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 1
+	}
+}

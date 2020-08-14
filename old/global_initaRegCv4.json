@@ -1,0 +1,28 @@
+{
+	"model_type": "global_model_pers",
+	"seed": 346,
+	"input_directory": "../cv4_ImputeUsingTrainingMean",
+	"output_path": "../cv4_global_regression_1_pers.csv",
+	"cv": 4,
+	"input_dim": 126,
+	"layers": [2],
+	"activation": "relu",
+	"output_layer": {
+		"loss_type": "regression",
+		"classification_thresholds": ""
+	},
+	"learn_rate": 0.0004,
+	"batch_size": 40,
+	"epochs": 70,
+	"test_callback": 1,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "../cv4_global_regression_1.png",
+	"fed_model_parameters": {
+		"clients_per_round": 80,
+		"local_updates_per_round": 2,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 0.1
+	}
+}

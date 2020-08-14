@@ -1,0 +1,21 @@
+{
+	"model_type": "moving_mean_model",
+	"input_directory": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2_ImputeUsingTrainingMean",
+	"output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2_baseline_test.csv",
+	"cv": 2,
+	"output_layer": {
+		"loss_type": "regression",
+		"classification_thresholds": ""
+	},
+	"layers": [12,8],
+	"plot_auc": 0,
+	"test_callback": 0,
+	"auc_output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2_indiv_binary.png",
+	"fed_model_parameters": {
+		"clients_per_round": 80,
+		"local_updates_per_round": 2,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 0.1
+	}
+}

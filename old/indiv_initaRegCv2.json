@@ -1,0 +1,28 @@
+{
+	"model_type": "individual_model",
+	"seed": 360,
+	"input_directory": "../cv2_ImputeUsingTrainingMean",
+	"output_path": "../cv2_indiv_regression1_2Layers.csv",
+	"cv": 2,
+	"input_dim": 126,
+	"layers": [2, 2],
+	"activation": "relu",
+	"output_layer": {
+		"loss_type": "regression",
+		"classification_thresholds": ""
+	},
+	"learn_rate": 0.5,
+	"batch_size": 40,
+	"epochs": 30,
+	"test_callback": 1,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "../cv2_indiv_regression.png",
+	"fed_model_parameters": {
+		"clients_per_round": 80,
+		"local_updates_per_round": 4,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 1
+	}
+}

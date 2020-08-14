@@ -1,9 +1,42 @@
-6/10/2020 trying WESAD data
+6/17/2020
+module load python3.6-anaconda
+source activate fedModelSetup 
+conda install yaml
+(i don't think this was necessary)
+
+6/10/2020 trying WESAD data /Users/jessica/Downloads/WESAD_Data_Scripts/WESAD_Scripts/data/subject_feats
 downloaded cvxEDA.py from https://github.com/lciti/cvxEDA
 conda install -c conda-forge cvxopt
 
-Questions: Change Downloads/WESAD_Data_Scripts/WESAD_Scripts/data_wrangling.py WINDOW_IN_SECONDS = 0.25 instead of 30?
+Questions: Change Downloads/WESAD_Data_Scripts/WESAD_Scripts/data_wrangling.py WINDOW_IN_SECONDS?
+using features and WINDOW_IN_SECONDS=30 (default on github):
+Number of samples per class:
+baseline: 628
+stress: 355
+amusement: 195
+input_dim 46, "learn_rate": 0.05, "layers": [2], "epochs": 10
+batch size 10 for global and individual, tuned lr and epochs
+tuned local updates, clients per round, lr, epochs for fed
+global model AUC was 0.98
 
+
+Around line 255 in data_wrangling.py, try changing 1 to 'baseline', 2 to 'stress', 0 to 'amusement' instead of number values?
+
+WINDOW_IN_SECONDS=60
+Number of samples per class:
+baseline: 312
+stress: 175
+amusement: 90
+
+with open('/Users/jessica/Dropbox/federated_learning/github/greatLakes/S2.pkl', 'rb') as f:
+    data = pickle.load(f, encoding='latin1')
+data['signal']['chest']['EDA']
+
+# github when local repository has diverged from master:
+git fetch origin
+git reset origin/master
+undoes local commits but keeps the local changes
+https://medium.com/@steveamaza/how-to-write-a-proper-git-commit-message-e028865e5791
 
 5/19/2020
 Jack and I trying to figure out why running experiments locally for fed and individual give us way different results than running on great lakes

@@ -1,0 +1,28 @@
+{
+	"model_type": "individual_model",
+	"seed": 374,
+	"input_directory": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2_ImputeUsingTrainingMean",
+	"output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2_indiv_binary2_2Layers.csv",
+	"cv": 2,
+	"input_dim": 126,
+	"layers": [2, 2],
+	"activation": "relu",
+	"output_layer": {
+		"loss_type": "classification",
+		"classification_thresholds": [7]
+	},
+	"learn_rate": 0.08,
+	"batch_size": 40,
+	"epochs": 10,
+	"test_callback": 1,
+	"verbose": 1,
+	"plot_auc": 0,
+	"auc_output_path": "/Users/jessica/Downloads/IHS/4_11_19AdditionalCVBlocks/individual_users_neuralNet/cv2_indiv_binary.png",
+	"fed_model_parameters": {
+		"clients_per_round": 80,
+		"local_updates_per_round": 2,
+		"deployment_location": "server",
+		"global_aggregator": "fed_avg",
+		"fed_stepsize": 0.1
+	}
+}
