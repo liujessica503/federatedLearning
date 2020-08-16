@@ -1,4 +1,5 @@
-# Federated Learning
+# Federated Learning on Mobile Health Data
+Learning From Others Without Sacrificing Privacy: Application of Federated Machine Learning to Mobile Health Data
 
 ## Setup
 To replicate results, please install Python 3.7.7 and the following libraries and versions:
