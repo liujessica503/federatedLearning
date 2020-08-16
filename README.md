@@ -36,3 +36,11 @@ Files corresponding to each model:
 
 seed 1234 is used in each of the above .json files. The seeds used for the box plot in the paper appendix are:
 1234 1235 1236 1237 1238 1239 1240 1241 1242 1243 1244 1245 1246 1247 1248
+
+
+## Sources
+*Data was transformed from [1], using scripts derived from https://github.com/WJMatthew/WESAD#matthew-johnson-2019  
+
+[1] Schmidt P, Reiss A, Duerichen R, Marberger C, Van Laerhoven K. Introducing WESAD, a Multimodal Dataset for Wearable Stress and Affect Detection. Proceedings of the 20th ACM International Conference on Multimodal Interaction;2018:400-408. New York: Association for Computing Machinery. doi:10.1145/3242969.3242985 
+WESAD Dataset available at https://archive.ics.uci.edu/ml/datasets/WESAD+%28Wearable+Stress+and+Affect+Detection%29
+
