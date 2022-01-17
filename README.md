@@ -1,5 +1,7 @@
 # Federated Learning on Mobile Health Data
-Learning From Others Without Sacrificing Privacy: Application of Federated Machine Learning to Mobile Health Data
+This repository contains the code to reproduce the results in the following publication:
+Liu JC, Goetz J, Sen S, Tewari A. Learning From Others Without Sacrificing Privacy: Simulation Comparing Centralized and Federated Machine Learning on Mobile Health Data. JMIR Mhealth Uhealth 2021;9(3):e23728. doi: 10.2196/23728. Available at https://mhealth.jmir.org/2021/3/e23728/
+
 
 ## Setup
 To replicate results, please install Python 3.7.7 and the following libraries and versions:
